@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (keep samples manifest, ignore large files)
+data/samples/*.html
+*.pdf
+*.docx
+
+# Logs
+*.log
+logs/
+
+# Node.js (frontend)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Alembic
+backend/alembic/versions/*.py
+!backend/alembic/versions/.gitkeep
+
+# Misc
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
