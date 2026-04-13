@@ -1,0 +1,91 @@
+CONG HOA XA HOI CHU NGHIA VIET NAM
+Doc lap — Tu do — Hanh phuc
+---------
+
+HOP DONG LAO DONG
+(Khong xac dinh thoi han)
+
+So: ___/HDLD
+
+Can cu Bo luat Lao dong so 45/2019/QH14 ngay 20/11/2019;
+Can cu Nghi dinh so 145/2020/ND-CP ngay 14/12/2020;
+
+Hom nay, {{ start_date | date_vi }}, tai {{ work_location | default("___") }}, chung toi gom:
+
+BEN A — NGUOI SU DUNG LAO DONG:
+- Ten doanh nghiep/Ho kinh doanh: {{ employer_name | default("___") }}
+- Dia chi: {{ employer_address | default("___") }}
+- Nguoi dai dien: {{ employer_representative | default("___") }}
+- Chuc vu: {{ employer_position | default("Giam doc") }}
+
+BEN B — NGUOI LAO DONG:
+- Ho va ten: {{ employee_name | default("___") }}
+- Ngay sinh: {{ employee_dob | date_vi }}
+- So CCCD/CMND: {{ employee_id_number | default("___") }}
+- Dia chi thuong tru: {{ employee_address | default("___") }}
+
+Hai ben thoa thuan ky ket Hop dong lao dong voi cac dieu khoan sau:
+
+DIEU 1. CONG VIEC VA DIA DIEM LAM VIEC
+1.1. Vi tri/chuc danh: {{ job_title | default("___") }}
+1.2. Dia diem lam viec: {{ work_location | default("___") }}
+
+DIEU 2. THOI HAN HOP DONG
+2.1. Loai hop dong: Khong xac dinh thoi han
+2.2. Ngay bat dau lam viec: {{ start_date | date_vi }}
+
+DIEU 3. MUC LUONG VA HINH THUC TRA LUONG
+3.1. Muc luong chinh: {{ salary | vnd }} dong/thang
+     (Bang chu: {{ salary | number_to_words_vi }})
+3.2. Hinh thuc tra luong: Chuyen khoan ngan hang
+3.3. Ngay tra luong: Ngay {{ salary_payment_day | default("5") }} hang thang
+3.4. Cac khoan phu cap, bo sung khac (neu co): Theo quy che cua doanh nghiep
+
+DIEU 4. THOI GIO LAM VIEC, THOI GIO NGHI NGOI
+4.1. Thoi gian lam viec: {{ hours_per_week | default("48") }} gio/tuan
+4.2. So ngay lam viec/tuan: {{ working_days | default("6") }} ngay
+4.3. Nghi phep nam: Theo quy dinh cua Bo luat Lao dong 2019 (12 ngay/nam doi voi dieu kien binh thuong)
+
+DIEU 5. BAO HIEM XA HOI, BAO HIEM Y TE, BAO HIEM THAT NGHIEP
+5.1. Nguoi su dung lao dong va nguoi lao dong co nghia vu tham gia BHXH, BHYT, BHTN theo quy dinh cua phap luat.
+5.2. Muc dong:
+     - Nguoi lao dong: 10,5% luong thang (BHXH 8%, BHYT 1,5%, BHTN 1%)
+     - Nguoi su dung lao dong: 21,5% luong thang (BHXH 17,5%, BHYT 3%, BHTN 1%)
+
+DIEU 6. AN TOAN LAO DONG, VE SINH LAO DONG
+6.1. Ben A co trach nhiem dam bao dieu kien an toan, ve sinh lao dong theo quy dinh.
+6.2. Ben B co nghia vu chap hanh cac quy dinh ve an toan, ve sinh lao dong.
+
+DIEU 7. QUYEN VA NGHIA VU CUA BEN A
+7.1. Quyen cua Ben A:
+     a) Dieu hanh, giam sat cong viec cua Ben B theo hop dong;
+     b) Xu ly ky luat, boi thuong thiet hai theo quy dinh phap luat va noi quy lao dong.
+7.2. Nghia vu cua Ben A:
+     a) Thuc hien day du cac dieu khoan da cam ket trong hop dong;
+     b) Tra luong day du, dung han cho Ben B.
+
+DIEU 8. QUYEN VA NGHIA VU CUA BEN B
+8.1. Quyen cua Ben B:
+     a) Duoc cung cap dieu kien lam viec theo hop dong;
+     b) Duoc huong luong, phuc loi, bao hiem theo quy dinh.
+8.2. Nghia vu cua Ben B:
+     a) Hoan thanh cong viec theo hop dong;
+     b) Chap hanh noi quy lao dong cua doanh nghiep.
+
+DIEU 9. CHAM DUT HOP DONG LAO DONG
+9.1. Cac truong hop cham dut: Theo Dieu 34 Bo luat Lao dong 2019.
+9.2. Thoi han bao truoc khi don phuong cham dut:
+     - Nguoi lao dong: it nhat 45 ngay (Dieu 35 Khoan 1)
+     - Nguoi su dung lao dong: Theo Dieu 36 Bo luat Lao dong 2019
+
+DIEU 10. DIEU KHOAN THI HANH
+10.1. Hop dong nay co hieu luc ke tu ngay ky.
+10.2. Hop dong duoc lap thanh 02 ban co gia tri phap ly nhu nhau, moi ben giu 01 ban.
+10.3. Khi co tranh chap phat sinh, hai ben uu tien giai quyet bang thuong luong. Truong hop khong giai quyet duoc, dua ra co quan co tham quyen giai quyet theo quy dinh phap luat.
+
+BEN A                                          BEN B
+(Ky, ghi ro ho ten)                            (Ky, ghi ro ho ten)
+
+
+
+{{ employer_representative | default("___") }}                {{ employee_name | default("___") }}

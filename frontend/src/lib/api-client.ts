@@ -1,6 +1,14 @@
 /* API client for communicating with the FastAPI backend. */
 
-import type { IngestResponse } from "./types";
+import type {
+  ComplianceResult,
+  ContractDetail,
+  ContractListItem,
+  ContractResponse,
+  IngestResponse,
+  TemplateDetail,
+  TemplateListItem,
+} from "./types";
 
 const API_BASE = "";
 
@@ -81,4 +89,72 @@ export async function fetchDocuments() {
 export async function checkHealth() {
   const response = await fetch(`${API_BASE}/api/health`);
   return response.json();
+}
+
+/* ----- Contract API ----- */
+
+export async function fetchTemplates(): Promise<TemplateListItem[]> {
+  const response = await fetch(`${API_BASE}/api/contracts/templates`);
+  if (!response.ok) throw new Error(`Fetch templates failed: ${response.status}`);
+  return response.json();
+}
+
+export async function fetchTemplateDetail(templateKey: string): Promise<TemplateDetail> {
+  const response = await fetch(`${API_BASE}/api/contracts/templates/${templateKey}`);
+  if (!response.ok) throw new Error(`Fetch template failed: ${response.status}`);
+  return response.json();
+}
+
+export async function validateContract(
+  templateKey: string,
+  inputData: Record<string, unknown>,
+  region: string = "vung_1",
+): Promise<ComplianceResult> {
+  const response = await fetch(`${API_BASE}/api/contracts/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      template_key: templateKey,
+      input_data: inputData,
+      region,
+    }),
+  });
+  if (!response.ok) throw new Error(`Validate failed: ${response.status}`);
+  return response.json();
+}
+
+export async function createContract(
+  templateKey: string,
+  inputData: Record<string, unknown>,
+  region: string = "vung_1",
+  title: string = "",
+): Promise<ContractResponse> {
+  const response = await fetch(`${API_BASE}/api/contracts/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      template_key: templateKey,
+      input_data: inputData,
+      region,
+      title,
+    }),
+  });
+  if (!response.ok) throw new Error(`Create contract failed: ${response.status}`);
+  return response.json();
+}
+
+export async function fetchContracts(): Promise<ContractListItem[]> {
+  const response = await fetch(`${API_BASE}/api/contracts/`);
+  if (!response.ok) throw new Error(`Fetch contracts failed: ${response.status}`);
+  return response.json();
+}
+
+export async function fetchContract(contractId: string): Promise<ContractDetail> {
+  const response = await fetch(`${API_BASE}/api/contracts/${contractId}`);
+  if (!response.ok) throw new Error(`Fetch contract failed: ${response.status}`);
+  return response.json();
+}
+
+export function getExportUrl(contractId: string, format: "pdf" | "docx" = "pdf"): string {
+  return `${API_BASE}/api/contracts/${contractId}/export?format=${format}`;
 }

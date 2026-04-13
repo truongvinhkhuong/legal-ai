@@ -1,0 +1,66 @@
+CONG HOA XA HOI CHU NGHIA VIET NAM
+Doc lap — Tu do — Hanh phuc
+---------
+
+{{ employer_name | default("___") | upper }}
+
+BIEN BAN VI PHAM KY LUAT LAO DONG
+
+Can cu Bo luat Lao dong so 45/2019/QH14 ngay 20/11/2019 (Dieu 122, 123, 124);
+Can cu Nghi dinh so 145/2020/ND-CP ngay 14/12/2020;
+Can cu Noi quy lao dong cua {{ employer_name | default("doanh nghiep") }};
+
+Hom nay, {{ violation_date | date_vi }}, tai {{ employer_address | default("___") }}, chung toi gom:
+
+DAI DIEN NGUOI SU DUNG LAO DONG:
+- Ten doanh nghiep/Ho kinh doanh: {{ employer_name | default("___") }}
+- Dia chi: {{ employer_address | default("___") }}
+- Nguoi dai dien: {{ employer_representative | default("___") }}
+- Chuc vu: {{ employer_position | default("Giam doc") }}
+
+NGUOI LAO DONG BI XU LY KY LUAT:
+- Ho va ten: {{ employee_name | default("___") }}
+- Chuc danh: {{ employee_position | default("___") }}
+{% if employee_department %}- Phong ban: {{ employee_department }}{% endif %}
+
+NOI DUNG:
+
+1. HANH VI VI PHAM
+1.1. Ngay vi pham: {{ violation_date | date_vi }}
+1.2. Mo ta hanh vi vi pham:
+{{ violation_description | default("___") }}
+
+{% if violation_evidence %}
+2. CHUNG CU / BANG CHUNG
+{{ violation_evidence }}
+{% endif %}
+
+3. Y KIEN CUA NGUOI LAO DONG
+{% if employee_explanation %}
+{{ employee_explanation }}
+{% else %}
+Nguoi lao dong duoc tao dieu kien trinh bay y kien, giai trinh theo quy dinh tai Dieu 122 Khoan 1 Bo luat Lao dong 2019.
+{% endif %}
+
+4. KET LUAN
+4.1. Bien ban nay ghi nhan hanh vi vi pham ky luat cua nguoi lao dong.
+4.2. Bien ban la can cu de nguoi su dung lao dong xem xet hinh thuc xu ly ky luat theo quy dinh cua phap luat va noi quy lao dong.
+4.3. Cac hinh thuc xu ly ky luat lao dong theo Dieu 124 BLLD 2019:
+     a) Khien trach;
+     b) Keo dai thoi han nang luong khong qua 06 thang;
+     c) Cach chuc;
+     d) Sa thai.
+
+5. LUU Y VE THU TUC XU LY KY LUAT
+- Phai co su tham gia cua to chuc dai dien nguoi lao dong (neu co) — Dieu 122 Khoan 1.
+- Nguoi lao dong phai co mat va co quyen tu bao chua, nho luat su — Dieu 122 Khoan 1.
+- Thoi hieu xu ly ky luat: 06 thang ke tu ngay xay ra vi pham (12 thang trong truong hop dac biet) — Dieu 123.
+
+Bien ban duoc lap thanh 02 ban, doc lai truoc su chung kien cua cac ben.
+
+DAI DIEN DOANH NGHIEP                          NGUOI LAO DONG
+(Ky, ghi ro ho ten)                            (Ky, ghi ro ho ten)
+
+
+
+{{ employer_representative | default("___") }}                {{ employee_name | default("___") }}

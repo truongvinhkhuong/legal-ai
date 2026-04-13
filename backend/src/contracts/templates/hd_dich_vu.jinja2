@@ -1,0 +1,78 @@
+CONG HOA XA HOI CHU NGHIA VIET NAM
+Doc lap — Tu do — Hanh phuc
+---------
+
+HOP DONG DICH VU
+
+So: ___/HDDV
+
+Can cu Bo luat Dan su so 91/2015/QH13 ngay 24/11/2015;
+
+Hom nay, ngay ___ thang ___ nam ___, chung toi gom:
+
+BEN A — BEN CUNG CAP DICH VU:
+- Ten doanh nghiep/Ca nhan: {{ provider_name | default("___") }}
+- Dia chi: {{ provider_address | default("___") }}
+- Nguoi dai dien: {{ provider_representative | default("___") }}
+
+BEN B — BEN SU DUNG DICH VU:
+- Ten doanh nghiep/Ca nhan: {{ client_name | default("___") }}
+- Dia chi: {{ client_address | default("___") }}
+- Nguoi dai dien: {{ client_representative | default("___") }}
+
+Hai ben thoa thuan ky ket Hop dong dich vu voi cac dieu khoan sau:
+
+DIEU 1. NOI DUNG DICH VU
+1.1. Mo ta dich vu: {{ service_description | default("___") }}
+1.2. Yeu cau chat luong: Ben A dam bao thuc hien dich vu theo dung noi dung da thoa thuan.
+
+DIEU 2. THOI HAN THUC HIEN
+2.1. Thoi han: {{ service_duration | default("___") }}
+2.2. Dia diem thuc hien: Theo thoa thuan giua hai ben.
+
+DIEU 3. PHI DICH VU VA PHUONG THUC THANH TOAN
+3.1. Phi dich vu: {{ service_fee | vnd }} dong
+     (Bang chu: {{ service_fee | number_to_words_vi }})
+3.2. Dieu khoan thanh toan: {{ payment_terms | default("Thanh toan 100% sau khi hoan thanh") }}
+3.3. Hinh thuc thanh toan: Chuyen khoan ngan hang
+
+DIEU 4. QUYEN VA NGHIA VU CUA BEN A
+4.1. Quyen cua Ben A:
+     a) Nhan thanh toan day du, dung han theo thoa thuan;
+     b) Tu choi thuc hien cac yeu cau ngoai pham vi hop dong.
+4.2. Nghia vu cua Ben A:
+     a) Thuc hien dich vu dung noi dung, chat luong va thoi han;
+     b) Bao mat thong tin cua Ben B trong qua trinh thuc hien dich vu;
+     c) Chiu trach nhiem ve chat luong dich vu da cung cap.
+
+DIEU 5. QUYEN VA NGHIA VU CUA BEN B
+5.1. Quyen cua Ben B:
+     a) Yeu cau Ben A thuc hien dich vu dung noi dung da thoa thuan;
+     b) Giam sat qua trinh thuc hien dich vu.
+5.2. Nghia vu cua Ben B:
+     a) Thanh toan phi dich vu day du, dung han;
+     b) Cung cap thong tin, tai lieu can thiet de Ben A thuc hien dich vu;
+     c) Phoi hop voi Ben A trong qua trinh thuc hien dich vu.
+
+DIEU 6. PHAT VI PHAM VA BOI THUONG THIET HAI
+6.1. Ben vi pham nghia vu hop dong phai chiu phat vi pham bang 8% gia tri hop dong.
+6.2. Ben gay thiet hai phai boi thuong toan bo thiet hai thuc te cho ben bi thiet hai.
+
+DIEU 7. CHAM DUT HOP DONG
+7.1. Hop dong cham dut khi:
+     a) Hai ben da thuc hien xong nghia vu hop dong;
+     b) Hai ben thoa thuan cham dut;
+     c) Mot ben vi pham nghiem trong dieu khoan hop dong.
+7.2. Ben muon cham dut truoc han phai thong bao truoc it nhat 15 ngay.
+
+DIEU 8. DIEU KHOAN THI HANH
+8.1. Hop dong nay co hieu luc ke tu ngay ky.
+8.2. Hop dong duoc lap thanh 02 ban co gia tri phap ly nhu nhau, moi ben giu 01 ban.
+8.3. Moi tranh chap phat sinh duoc giai quyet bang thuong luong. Truong hop khong giai quyet duoc, dua ra Toa an co tham quyen giai quyet.
+
+BEN A — BEN CUNG CAP                           BEN B — BEN SU DUNG
+(Ky, ghi ro ho ten)                            (Ky, ghi ro ho ten)
+
+
+
+{{ provider_representative | default("___") }}                {{ client_representative | default("___") }}

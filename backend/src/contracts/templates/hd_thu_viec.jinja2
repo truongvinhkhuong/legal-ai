@@ -1,0 +1,61 @@
+CONG HOA XA HOI CHU NGHIA VIET NAM
+Doc lap — Tu do — Hanh phuc
+---------
+
+HOP DONG THU VIEC
+
+So: ___/HDTV
+
+Can cu Bo luat Lao dong so 45/2019/QH14 ngay 20/11/2019 (Dieu 24, 25, 26, 27);
+
+Hom nay, ngay ___ thang ___ nam ___, tai {{ work_location | default("___") }}, chung toi gom:
+
+BEN A — NGUOI SU DUNG LAO DONG:
+- Ten doanh nghiep/Ho kinh doanh: {{ employer_name | default("___") }}
+- Dia chi: {{ employer_address | default("___") }}
+- Nguoi dai dien: {{ employer_representative | default("___") }}
+- Chuc vu: {{ employer_position | default("Giam doc") }}
+
+BEN B — NGUOI LAO DONG:
+- Ho va ten: {{ employee_name | default("___") }}
+- Ngay sinh: {{ employee_dob | date_vi }}
+- So CCCD/CMND: {{ employee_id_number | default("___") }}
+- Dia chi thuong tru: {{ employee_address | default("___") }}
+
+Hai ben thoa thuan ky ket Hop dong thu viec voi cac dieu khoan sau:
+
+DIEU 1. CONG VIEC THU VIEC
+1.1. Vi tri thu viec: {{ job_title | default("___") }}
+1.2. Dia diem lam viec: {{ work_location | default("___") }}
+1.3. Noi dung cong viec: Thuc hien cac nhiem vu theo vi tri {{ job_title | default("___") }} duoi su huong dan cua Ben A.
+
+DIEU 2. THOI GIAN THU VIEC
+2.1. Thoi gian thu viec: {{ probation_days | default("___") }} ngay
+2.2. Tu ngay: ___ den ngay: ___
+2.3. Luu y: Thoi gian thu viec khong duoc vuot qua muc toi da theo Dieu 25 Bo luat Lao dong 2019.
+
+DIEU 3. LUONG THU VIEC
+3.1. Muc luong thu viec: {{ salary | vnd }} dong/thang
+     (Bang chu: {{ salary | number_to_words_vi }})
+3.2. Luong thu viec khong duoc thap hon 85% muc luong cua cong viec do (Dieu 26 Khoan 2 BLLD 2019).
+
+DIEU 4. DIEU KIEN LAM VIEC
+4.1. Ben A dam bao cung cap dieu kien lam viec, dung cu, phuong tien can thiet de Ben B thuc hien cong viec thu viec.
+4.2. Ben B duoc huong cac che do ve an toan lao dong, ve sinh lao dong theo quy dinh.
+
+DIEU 5. KET THUC THU VIEC
+5.1. Khi ket thuc thoi gian thu viec:
+     a) Neu dat yeu cau: Ben A ky Hop dong lao dong chinh thuc voi Ben B trong thoi han 03 ngay.
+     b) Neu khong dat yeu cau: Ben A thong bao cho Ben B va cham dut hop dong thu viec.
+5.2. Trong thoi gian thu viec, moi ben co quyen huy bo hop dong thu viec ma khong can bao truoc va khong phai boi thuong (Dieu 27 BLLD 2019).
+
+DIEU 6. DIEU KHOAN THI HANH
+6.1. Hop dong nay co hieu luc ke tu ngay ky.
+6.2. Hop dong duoc lap thanh 02 ban co gia tri phap ly nhu nhau, moi ben giu 01 ban.
+
+BEN A                                          BEN B
+(Ky, ghi ro ho ten)                            (Ky, ghi ro ho ten)
+
+
+
+{{ employer_representative | default("___") }}                {{ employee_name | default("___") }}

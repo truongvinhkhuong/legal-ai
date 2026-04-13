@@ -25,11 +25,27 @@ export function ChatInterface() {
   return (
     <div className="flex-1 flex flex-col">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
         {messages.length === 0 && (
-          <div className="text-center text-gray-400 mt-20">
-            <p className="text-lg">Hoi bat ky cau hoi phap ly nao</p>
-            <p className="text-sm mt-2">Vi du: &quot;Quy dinh nghi phep nam cua nhan vien chinh thuc?&quot;</p>
+          <div className="text-center text-gray-400 mt-12 md:mt-20 px-4">
+            <p className="text-lg font-medium text-gray-600">Xin chao! Toi co the giup gi cho ban?</p>
+            <p className="text-sm mt-3 text-gray-400">Thu hoi mot trong nhung cau sau:</p>
+            <div className="mt-4 space-y-2 max-w-md mx-auto">
+              {[
+                "Nhan vien nghi viec khong bao truoc, xu ly the nao?",
+                "Quy dinh ve thoi gian thu viec theo luat moi nhat?",
+                "Hop dong thue mat bang can nhung dieu khoan gi?",
+              ].map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => { setInput(q); }}
+                  className="block w-full text-left px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:border-brand-400 hover:text-brand-700 transition-colors"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -49,7 +65,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-gray-200 bg-white px-6 py-3">
+      <div className="border-t border-gray-200 bg-white px-3 md:px-6 py-3">
         <form onSubmit={handleSubmit} className="flex gap-3">
           <input
             type="text"

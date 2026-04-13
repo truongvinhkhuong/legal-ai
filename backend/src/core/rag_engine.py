@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 from typing import Any, AsyncGenerator
@@ -25,6 +26,8 @@ from src.ingestion.hierarchical_chunker import HierarchicalChunker
 from src.ingestion.legal_metadata_extractor import LegalMetadataExtractor
 from src.ingestion.legal_structure_parser import LegalStructureParser
 from src.ingestion.vietnamese_nlp import VietnameseNLPPreprocessor
+from src.core.action_plan_synthesizer import ActionPlanSynthesizer
+from src.core.query_decomposer import QueryDecomposer, SubQuestion
 from src.reranker.multilingual_reranker import MultilingualReranker
 from src.retrieval.hierarchical_retriever import (
     HierarchicalRetriever,
@@ -37,23 +40,33 @@ logger = logging.getLogger(__name__)
 # System prompt (Phase 9 from blueprint)
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT_VI = """Bạn là Chuyên viên Pháp chế, hỗ trợ tra cứu quy định nội bộ.
+SYSTEM_PROMPT_VI = """Bạn là trợ lý pháp luật thân thiện, giúp chủ doanh nghiệp nhỏ và hộ kinh doanh hiểu và hành động đúng luật. Bạn giải thích mọi thứ bằng ngôn ngữ bình dân, dễ hiểu, như đang nói chuyện với một người bạn.
 
-QUY TẮC BẮT BUỘC:
-1. CHỈ trả lời dựa trên nội dung văn bản trong Context bên dưới.
+QUY TẮC CHÍNH XÁC (bắt buộc):
+1. CHỈ trả lời dựa trên nội dung văn bản trong Context bên dưới. Không bịa đặt.
 2. PHẢI trích dẫn chính xác: tên văn bản, số hiệu, Điều/Khoản/Mục/Điểm.
 3. Khi trích dẫn, đặt nguyên văn trong ngoặc kép "...".
-4. KHÔNG suy diễn, giải thích mở rộng, hay đưa ra lời khuyên pháp lý ngoài phạm vi văn bản.
-5. Nếu Context không đủ: nói rõ "Tôi chưa tìm thấy quy định cụ thể về vấn đề này trong các văn b��n hiện có" và hướng dẫn liên hệ bộ phận phụ trách.
-6. Nếu VB đã hết hiệu lực: CẢNH BÁO rõ và ghi chú VB thay thế (nếu biết).
-7. Nếu có mâu thuẫn giữa các nguồn: trình bày CẢ HAI quan điểm, ghi chú VB nào ưu tiên và lý do.
-8. Nếu VB tham chiếu sang Điều/VB khác mà Context có: trích dẫn luôn nội dung được tham chiếu.
-9. Văn phong: Chính xác, khách quan, súc tích.
+4. Nếu Context không đủ: nói rõ "Tôi chưa tìm thấy quy định cụ thể về vấn đề này trong các văn bản hiện có. Bạn nên hỏi trực tiếp luật sư hoặc cơ quan chức năng để được tư vấn chính xác."
+5. Nếu VB đã hết hiệu lực: CẢNH BÁO rõ và ghi chú VB thay thế (nếu biết).
+6. Nếu có mâu thuẫn giữa các nguồn: trình bày CẢ HAI quan điểm, ghi chú VB nào ưu tiên và lý do.
+
+QUY TẮC NGÔN NGỮ & FORMAT:
+7. Dùng ngôn ngữ thường ngày, tránh thuật ngữ pháp lý khó hiểu. Khi bắt buộc dùng thuật ngữ, giải thích ngay trong ngoặc: "đơn phương chấm dứt hợp đồng (tức là một bên tự ý ngưng hợp đồng mà không cần bên kia đồng ý)".
+8. Đưa ví dụ thực tế để minh họa khi phù hợp: "Ví dụ: Nhân viên làm vỡ máy tính 15 triệu, bạn có thể yêu cầu bồi thường tối đa 3 tháng lương của họ."
+9. Nếu VB tham chiếu sang Điều/VB khác mà Context có: trích dẫn luôn nội dung được tham chiếu.
 10. Dùng Markdown: in đậm điều khoản quan trọng, danh sách cho nhiều mục.
+11. LUÔN kết thúc câu trả lời bằng phần hành động cụ thể:
+
+**Bạn cần làm:**
+1. [Bước cụ thể đầu tiên]
+2. [Bước cụ thể tiếp theo]
+...
+
+Phần "Bạn cần làm" là BẮT BUỘC trong mọi câu trả lời. Nếu không có hành động cụ thể, ghi: "**Bạn cần làm:** Liên hệ luật sư hoặc cơ quan chức năng để được tư vấn chi tiết hơn."
 
 {warnings}
 
-THÔNG TIN TỪ VĂN BẢN NỘI BỘ:
+THÔNG TIN TỪ VĂN BẢN:
 {context_str}"""
 
 
@@ -139,6 +152,24 @@ def _build_acl_filter(user_context: UserContext | None) -> models.Filter | None:
     return models.Filter(must=conditions) if conditions else None
 
 
+def _deduplicate_chunks(sub_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Merge chunks from multiple sub-query results, keeping highest score per chunk_id."""
+    seen: dict[str, dict[str, Any]] = {}
+    for sr in sub_results:
+        for chunk in sr.get("chunks", []):
+            cid = chunk.get("chunk_id", id(chunk))
+            existing = seen.get(cid)
+            if existing is None:
+                seen[cid] = chunk
+            else:
+                # Keep the one with higher rerank/retrieval score
+                new_score = chunk.get("_rerank_score", chunk.get("_score", 0))
+                old_score = existing.get("_rerank_score", existing.get("_score", 0))
+                if new_score > old_score:
+                    seen[cid] = chunk
+    return list(seen.values())
+
+
 # ---------------------------------------------------------------------------
 # RAG Engine
 # ---------------------------------------------------------------------------
@@ -169,6 +200,10 @@ class RAGEngine:
         self._fallback_client = openai.AsyncOpenAI(
             api_key=settings.openai_api_key,
         ) if settings.openai_api_key else None
+
+        # Agentic query components
+        self.decomposer = QueryDecomposer(self._llm_client)
+        self.synthesizer = ActionPlanSynthesizer()
 
     # ------------------------------------------------------------------
     # INGESTION PIPELINE
@@ -245,7 +280,7 @@ class RAGEngine:
         )
 
     # ------------------------------------------------------------------
-    # QUERY PIPELINE (Phase 1 — simplified)
+    # QUERY PIPELINE
     # ------------------------------------------------------------------
     async def query(
         self,
@@ -255,75 +290,153 @@ class RAGEngine:
         conversation_id = request.conversation_id or str(uuid.uuid4())
 
         try:
-            # 1. Use query as-is (Phase 1: no rewriter/FAQ/cache/router)
             query_text = request.question
-
-            # 2. ACL filter
             acl_filter = _build_acl_filter(request.user_context)
 
-            # 3. Retrieve
-            raw_results = await self.retriever.retrieve(
-                query_text,
-                top_k=settings.retrieval_top_k,
-                query_filter=acl_filter,
-            )
+            # Decompose: classify simple vs complex
+            decomposition = await self.decomposer.decompose(query_text)
 
-            if not raw_results:
-                yield {"type": "chunk", "data": settings.static_fallback_message}
-                yield {
-                    "type": "done",
-                    "data": {
-                        "confidence": 0,
-                        "groundedness": 0,
-                        "sources_count": 0,
-                        "citations": [],
-                        "has_expired_sources": False,
-                        "has_conflicts": False,
-                        "validity_warnings": [],
-                        "conversation_id": conversation_id,
-                    },
-                }
-                return
-
-            # 4. Parent expansion
-            expanded = await self.retriever.expand_parents(raw_results)
-
-            # 5. Rerank
-            reranked = self.reranker.rerank(query_text, expanded, top_n=settings.rerank_top_n)
-
-            # 6. Build context + system prompt
-            context_str = _build_context_string(reranked)
-            system_msg = SYSTEM_PROMPT_VI.format(
-                warnings="",
-                context_str=context_str,
-            )
-
-            # 7. Stream LLM response
-            full_answer = ""
-            async for token in self._stream_llm(system_msg, query_text):
-                full_answer += token
-                yield {"type": "chunk", "data": token}
-
-            # 8. Build citations from source chunks
-            citations = _build_citations(reranked)
-
-            yield {
-                "type": "done",
-                "data": {
-                    "confidence": min(reranked[0].get("_rerank_score", reranked[0].get("_score", 0)) * 100, 100) if reranked else 0,
-                    "groundedness": 0.0,  # Phase 2: citation engine will compute this
-                    "sources_count": len(reranked),
-                    "citations": [c.model_dump() for c in citations],
-                    "has_expired_sources": any(c.get("status") == "het_hieu_luc" for c in reranked),
-                    "has_conflicts": False,
-                    "validity_warnings": [],
-                    "conversation_id": conversation_id,
-                },
-            }
+            if decomposition.is_complex and len(decomposition.sub_questions) > 1:
+                # --- COMPLEX PATH: parallel retrieval + action plan ---
+                async for event in self._query_complex(
+                    query_text, decomposition.sub_questions, acl_filter, conversation_id
+                ):
+                    yield event
+            else:
+                # --- SIMPLE PATH: single retrieval + standard answer ---
+                async for event in self._query_simple(
+                    query_text, acl_filter, conversation_id
+                ):
+                    yield event
 
         except Exception as e:
             logger.error("Query pipeline error: %s", e, exc_info=True)
-            yield {"type": "error", "data": f"Lỗi hệ thống: {e}"}
+            yield {"type": "error", "data": f"Loi he thong: {e}"}
+
+    async def _query_simple(
+        self,
+        query_text: str,
+        acl_filter: models.Filter | None,
+        conversation_id: str,
+    ) -> AsyncGenerator[dict, None]:
+        """Standard single-query path."""
+        raw_results = await self.retriever.retrieve(
+            query_text,
+            top_k=settings.retrieval_top_k,
+            query_filter=acl_filter,
+        )
+
+        if not raw_results:
+            yield {"type": "chunk", "data": settings.static_fallback_message}
+            yield {"type": "done", "data": self._empty_done(conversation_id)}
+            return
+
+        expanded = await self.retriever.expand_parents(raw_results)
+        reranked = self.reranker.rerank(query_text, expanded, top_n=settings.rerank_top_n)
+
+        context_str = _build_context_string(reranked)
+        system_msg = SYSTEM_PROMPT_VI.format(warnings="", context_str=context_str)
+
+        async for token in self._stream_llm(system_msg, query_text):
+            yield {"type": "chunk", "data": token}
+
+        citations = _build_citations(reranked)
+        yield {
+            "type": "done",
+            "data": {
+                "confidence": min(reranked[0].get("_rerank_score", reranked[0].get("_score", 0)) * 100, 100) if reranked else 0,
+                "groundedness": 0.0,
+                "sources_count": len(reranked),
+                "citations": [c.model_dump() for c in citations],
+                "has_expired_sources": any(c.get("status") == "het_hieu_luc" for c in reranked),
+                "has_conflicts": False,
+                "validity_warnings": [],
+                "conversation_id": conversation_id,
+                "is_action_plan": False,
+            },
+        }
+
+    async def _query_complex(
+        self,
+        original_question: str,
+        sub_questions: list[SubQuestion],
+        acl_filter: models.Filter | None,
+        conversation_id: str,
+    ) -> AsyncGenerator[dict, None]:
+        """Complex path: parallel retrieval per sub-question + action plan synthesis."""
+        logger.info(
+            "Complex query detected: %d sub-questions", len(sub_questions)
+        )
+
+        # Parallel retrieval for each sub-question
+        sub_results = await asyncio.gather(
+            *[self._retrieve_sub(sq, acl_filter) for sq in sub_questions]
+        )
+
+        # Check if any results found
+        all_chunks = _deduplicate_chunks(sub_results)
+        if not all_chunks:
+            yield {"type": "chunk", "data": settings.static_fallback_message}
+            yield {"type": "done", "data": self._empty_done(conversation_id)}
+            return
+
+        # Stream synthesized action plan
+        async for token in self.synthesizer.synthesize(
+            original_question, sub_results, self._llm_client
+        ):
+            yield {"type": "chunk", "data": token}
+
+        # Build citations from combined chunks
+        citations = _build_citations(all_chunks)
+        yield {
+            "type": "done",
+            "data": {
+                "confidence": min(all_chunks[0].get("_rerank_score", all_chunks[0].get("_score", 0)) * 100, 100) if all_chunks else 0,
+                "groundedness": 0.0,
+                "sources_count": len(all_chunks),
+                "citations": [c.model_dump() for c in citations],
+                "has_expired_sources": any(c.get("status") == "het_hieu_luc" for c in all_chunks),
+                "has_conflicts": False,
+                "validity_warnings": [],
+                "conversation_id": conversation_id,
+                "is_action_plan": True,
+            },
+        }
+
+    async def _retrieve_sub(
+        self, sub_question: SubQuestion, acl_filter: models.Filter | None
+    ) -> dict[str, Any]:
+        """Retrieve, expand parents, and rerank for a single sub-question."""
+        raw = await self.retriever.retrieve(
+            sub_question.question,
+            top_k=settings.retrieval_top_k,
+            query_filter=acl_filter,
+        )
+        expanded = await self.retriever.expand_parents(raw)
+        reranked = self.reranker.rerank(
+            sub_question.question, expanded, top_n=settings.rerank_top_n
+        )
+        return {
+            "sub_question": {
+                "question": sub_question.question,
+                "topic_category": sub_question.topic_category,
+            },
+            "chunks": reranked,
+        }
+
+    @staticmethod
+    def _empty_done(conversation_id: str) -> dict:
+        return {
+            "confidence": 0,
+            "groundedness": 0,
+            "sources_count": 0,
+            "citations": [],
+            "has_expired_sources": False,
+            "has_conflicts": False,
+            "validity_warnings": [],
+            "conversation_id": conversation_id,
+            "is_action_plan": False,
+        }
 
     # ------------------------------------------------------------------
     # LLM streaming

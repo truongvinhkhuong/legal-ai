@@ -51,6 +51,10 @@ dependencies = [
     # --- HTTP client ---
     "httpx>=0.28.0",
 
+    # --- Contract templates & export ---
+    "jinja2>=3.1.0",
+    "weasyprint>=62.0",
+
     # --- Utilities ---
     "python-multipart>=0.0.17",
     "pyyaml>=6.0",

@@ -16,6 +16,7 @@ Tai lieu ky thuat cho he thong RAG phap ly tieng Viet. Project duoc to chuc theo
 | [Dataset Integration](./dataset-integration.md) | Tich hop dataset `vietnamese-legal-documents` tu HuggingFace |
 | [SaaS Roadmap](./saas-roadmap.md) | Lo trinh phat trien SaaS multi-tenant |
 | [AI Features](./ai-features.md) | 7 tinh nang AI nang cao de xuat |
+| [SME Feature Analysis](./sme-feature-analysis.md) | Phan tich tinh nang cho SME & ho kinh doanh: multi-agent drafting, neuro-symbolic compliance, agentic search |
 
 ## Trang thai trien khai
 

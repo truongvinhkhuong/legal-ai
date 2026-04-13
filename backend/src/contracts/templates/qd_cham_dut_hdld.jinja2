@@ -1,0 +1,52 @@
+CONG HOA XA HOI CHU NGHIA VIET NAM
+Doc lap — Tu do — Hanh phuc
+---------
+
+{{ employer_name | default("___") | upper }}
+
+QUYET DINH
+Ve viec cham dut hop dong lao dong
+
+So: ___/QD-HDLD
+
+Can cu Bo luat Lao dong so 45/2019/QH14 ngay 20/11/2019;
+Can cu Hop dong lao dong so ___ ky ngay {{ original_contract_date | date_vi }};
+Can cu tinh hinh thuc te;
+
+{{ employer_position | default("GIAM DOC") | upper }} {{ employer_name | default("___") | upper }}
+
+QUYET DINH:
+
+DIEU 1. Cham dut hop dong lao dong doi voi:
+- Ho va ten: {{ employee_name | default("___") }}
+- Chuc danh: {{ employee_position | default("___") }}
+{% if employee_department %}- Phong ban: {{ employee_department }}{% endif %}
+- Ke tu ngay: {{ termination_date | date_vi }}
+
+DIEU 2. LY DO CHAM DUT
+{{ termination_reason | default("___") }}
+
+DIEU 3. CHE DO KHI CHAM DUT HOP DONG
+3.1. Nguoi lao dong duoc huong cac che do theo quy dinh cua phap luat:
+     a) Tro cap thoi viec (neu du dieu kien theo Dieu 46 BLLD 2019);
+     b) Thanh toan luong con thieu, nghi phep nam chua su dung;
+     c) Xac nhan thoi gian dong BHXH;
+     d) Tra lai so BHXH va cac giay to khac (neu co).
+3.2. Thoi han thanh toan: Trong vong 14 ngay lam viec ke tu ngay cham dut hop dong (Dieu 48 BLLD 2019).
+
+DIEU 4. TO CHUC THUC HIEN
+4.1. Phong Nhan su/Ke toan co trach nhiem thuc hien cac thu tuc lien quan.
+4.2. Quyet dinh nay co hieu luc ke tu ngay ky.
+
+Noi nhan:
+- Nguoi lao dong (de thuc hien)
+- Phong Nhan su (de luu ho so)
+- Phong Ke toan (de thanh toan)
+- Luu VT
+
+{{ employer_position | default("GIAM DOC") | upper }}
+(Ky, dong dau)
+
+
+
+{{ employer_representative | default("___") }}

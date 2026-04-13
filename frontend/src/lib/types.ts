@@ -32,6 +32,7 @@ export interface ChatResponseMetadata {
   has_conflicts: boolean;
   validity_warnings: string[];
   conversation_id: string;
+  is_action_plan?: boolean;
 }
 
 export interface DocumentListItem {
@@ -54,4 +55,82 @@ export interface IngestResponse {
   articles_found: number;
   cross_references_found: number;
   warnings: string[];
+}
+
+/* ----- Contract types ----- */
+
+export interface TemplateListItem {
+  template_key: string;
+  name_vi: string;
+  description_vi: string;
+  category: string;
+}
+
+export interface FormFieldDef {
+  field_key: string;
+  label_vi: string;
+  field_type: "text" | "number" | "date" | "select" | "textarea";
+  required: boolean;
+  placeholder_vi: string;
+  options?: { value: string; label: string }[];
+  validation?: Record<string, unknown>;
+  help_text_vi: string;
+}
+
+export interface FormStep {
+  step_number: number;
+  title_vi: string;
+  fields: FormFieldDef[];
+}
+
+export interface TemplateDetail {
+  template_key: string;
+  name_vi: string;
+  description_vi: string;
+  category: string;
+  form_steps: FormStep[];
+}
+
+export interface ComplianceIssue {
+  rule_id: string;
+  level: "error" | "warning" | "info";
+  field: string;
+  message_vi: string;
+  legal_basis: string;
+  suggested_value?: string;
+}
+
+export interface ComplianceResult {
+  is_compliant: boolean;
+  issues: ComplianceIssue[];
+  checked_at: string;
+}
+
+export interface ContractResponse {
+  contract_id: string;
+  status: string;
+  rendered_content: string;
+  compliance: ComplianceResult;
+  created_at: string;
+}
+
+export interface ContractDetail {
+  contract_id: string;
+  template_key: string;
+  title: string;
+  status: string;
+  input_data: Record<string, unknown>;
+  rendered_content: string;
+  compliance: ComplianceResult | null;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContractListItem {
+  contract_id: string;
+  template_key: string;
+  title: string;
+  status: string;
+  created_at: string;
 }

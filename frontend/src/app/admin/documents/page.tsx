@@ -20,50 +20,81 @@ export default function DocumentsPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <header className="px-6 py-3 border-b border-gray-200 bg-white flex justify-between items-center">
+      <header className="px-3 md:px-6 py-3 border-b border-gray-200 bg-white flex justify-between items-center sticky top-0 z-10">
         <div>
-          <h2 className="text-lg font-semibold">Quan ly Van ban</h2>
-          <p className="text-sm text-gray-500">{documents.length} van ban</p>
+          <h2 className="text-base md:text-lg font-semibold">Quan ly Van ban</h2>
+          <p className="text-xs text-gray-500">{documents.length} van ban</p>
         </div>
         <DocumentUpload onSuccess={() => window.location.reload()} />
       </header>
 
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-3 md:p-6">
         {loading ? (
-          <p className="text-gray-500">Dang tai...</p>
+          <p className="text-gray-500 text-sm">Dang tai...</p>
         ) : documents.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p>Chua co van ban nao. Upload van ban dau tien.</p>
+            <p className="text-sm">Chua co van ban nao. Upload van ban dau tien.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="pb-2 font-medium">So hieu</th>
-                <th className="pb-2 font-medium">Tieu de</th>
-                <th className="pb-2 font-medium">Loai</th>
-                <th className="pb-2 font-medium">Trang thai</th>
-                <th className="pb-2 font-medium">Chunks</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile: card layout */}
+            <div className="md:hidden space-y-2">
               {documents.map((doc) => (
-                <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-2 font-mono text-xs">{doc.doc_number}</td>
-                  <td className="py-2">{doc.doc_title}</td>
-                  <td className="py-2">
-                    <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+                <div
+                  key={doc.id}
+                  className="border border-gray-200 rounded-lg p-3 bg-white"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {doc.doc_title}
+                      </p>
+                      <p className="text-xs text-gray-500 font-mono mt-0.5">
+                        {doc.doc_number}
+                      </p>
+                    </div>
+                    <StatusBadge status={doc.status} />
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
+                    <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">
                       {doc.doc_type}
                     </span>
-                  </td>
-                  <td className="py-2">
-                    <StatusBadge status={doc.status} />
-                  </td>
-                  <td className="py-2 text-gray-500">{doc.chunks_count}</td>
-                </tr>
+                    <span>{doc.chunks_count} chunks</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop: table layout */}
+            <table className="hidden md:table w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-500 border-b">
+                  <th className="pb-2 font-medium">So hieu</th>
+                  <th className="pb-2 font-medium">Tieu de</th>
+                  <th className="pb-2 font-medium">Loai</th>
+                  <th className="pb-2 font-medium">Trang thai</th>
+                  <th className="pb-2 font-medium">Chunks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc) => (
+                  <tr key={doc.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-2 font-mono text-xs">{doc.doc_number}</td>
+                    <td className="py-2">{doc.doc_title}</td>
+                    <td className="py-2">
+                      <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+                        {doc.doc_type}
+                      </span>
+                    </td>
+                    <td className="py-2">
+                      <StatusBadge status={doc.status} />
+                    </td>
+                    <td className="py-2 text-gray-500">{doc.chunks_count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
     </div>

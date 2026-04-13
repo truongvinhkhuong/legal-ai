@@ -20,9 +20,9 @@ export function CitationCard({ citation }: Props) {
   const borderStyle = statusStyles[citation.validity_status] || "border-gray-200 bg-gray-50";
 
   return (
-    <div className={`border rounded-md px-3 py-2 text-xs ${borderStyle}`}>
-      <div className="flex items-start justify-between">
-        <div>
+    <details className={`border rounded-md text-xs ${borderStyle} group`}>
+      <summary className="px-3 py-2 cursor-pointer list-none flex items-start justify-between">
+        <div className="min-w-0">
           <span className="font-medium text-gray-700">
             {citation.doc_number}
           </span>
@@ -35,7 +35,7 @@ export function CitationCard({ citation }: Props) {
           )}
         </div>
         <span
-          className={`px-1.5 py-0.5 rounded text-[10px] ${
+          className={`px-1.5 py-0.5 rounded text-[10px] flex-shrink-0 ml-2 ${
             citation.validity_status === "hieu_luc"
               ? "bg-green-100 text-green-700"
               : citation.validity_status === "het_hieu_luc"
@@ -45,18 +45,20 @@ export function CitationCard({ citation }: Props) {
         >
           {statusLabels[citation.validity_status] || citation.validity_status}
         </span>
-      </div>
+      </summary>
 
-      {citation.exact_quote && (
-        <p className="mt-1.5 text-gray-600 italic line-clamp-2">
-          &quot;{citation.exact_quote}&quot;
-        </p>
-      )}
+      <div className="px-3 pb-2">
+        {citation.exact_quote && (
+          <p className="text-gray-600 italic line-clamp-3">
+            &quot;{citation.exact_quote}&quot;
+          </p>
+        )}
 
-      <div className="mt-1 text-gray-400">
-        {citation.hierarchy_path}
-        {citation.is_cross_reference && " (tham chieu cheo)"}
+        <div className="mt-1 text-gray-400">
+          {citation.hierarchy_path}
+          {citation.is_cross_reference && " (tham chieu cheo)"}
+        </div>
       </div>
-    </div>
+    </details>
   );
 }

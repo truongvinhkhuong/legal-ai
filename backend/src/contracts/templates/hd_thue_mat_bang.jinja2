@@ -1,0 +1,86 @@
+CONG HOA XA HOI CHU NGHIA VIET NAM
+Doc lap — Tu do — Hanh phuc
+---------
+
+HOP DONG THUE MAT BANG
+
+So: ___/HDTMB
+
+Can cu Bo luat Dan su so 91/2015/QH13 ngay 24/11/2015;
+
+Hom nay, {{ start_date | date_vi }}, tai {{ property_address | default("___") }}, chung toi gom:
+
+BEN A — BEN CHO THUE:
+- Ho va ten/Ten doanh nghiep: {{ lessor_name | default("___") }}
+- So CCCD/CMND: {{ lessor_id_number | default("___") }}
+- Dia chi: {{ lessor_address | default("___") }}
+
+BEN B — BEN THUE:
+- Ho va ten/Ten doanh nghiep: {{ lessee_name | default("___") }}
+- So CCCD/CMND hoac DKKD: {{ lessee_id_number | default("___") }}
+- Dia chi: {{ lessee_address | default("___") }}
+
+Hai ben thoa thuan ky ket Hop dong thue mat bang voi cac dieu khoan sau:
+
+DIEU 1. DOI TUONG CHO THUE
+1.1. Dia chi mat bang: {{ property_address | default("___") }}
+{% if property_area %}1.2. Dien tich: {{ property_area }} m2{% endif %}
+1.3. Muc dich su dung: {{ usage_purpose | default("___") }}
+1.4. Hien trang mat bang: Ben A ban giao mat bang trong tinh trang su dung binh thuong.
+
+DIEU 2. THOI HAN THUE
+2.1. Thoi han: {{ rental_duration_months | default("___") }} thang
+2.2. Tu ngay: {{ start_date | date_vi }}
+2.3. Khi het han, neu Ben B muon tiep tuc thue, phai thong bao truoc it nhat 30 ngay.
+
+DIEU 3. GIA THUE VA PHUONG THUC THANH TOAN
+3.1. Gia thue: {{ rental_price | vnd }} dong/thang
+     (Bang chu: {{ rental_price | number_to_words_vi }})
+3.2. Phuong thuc thanh toan: {{ payment_method | default("Chuyen khoan ngan hang") }}
+3.3. Ky thanh toan: Thanh toan truoc ngay 05 hang thang.
+3.4. Gia thue chua bao gom tien dien, nuoc, internet va cac chi phi phat sinh khac.
+
+DIEU 4. TIEN DAT COC
+4.1. Tien dat coc: {{ deposit_amount | vnd }} dong
+     (Bang chu: {{ deposit_amount | number_to_words_vi }})
+4.2. Ben B dat coc cho Ben A vao ngay ky hop dong.
+4.3. Tien dat coc duoc hoan tra khi ket thuc hop dong, sau khi tru cac khoan no (neu co).
+4.4. Truong hop Ben B cham dut hop dong truoc han ma khong co ly do chinh dang, tien dat coc khong duoc hoan tra.
+
+DIEU 5. QUYEN VA NGHIA VU CUA BEN A
+5.1. Quyen cua Ben A:
+     a) Nhan tien thue dung han, day du;
+     b) Yeu cau Ben B boi thuong thiet hai do Ben B gay ra.
+5.2. Nghia vu cua Ben A:
+     a) Ban giao mat bang dung thoi han, dung tinh trang da thoa thuan;
+     b) Dam bao quyen su dung hop phap cua Ben B trong thoi han thue;
+     c) Sua chua nhung hu hong khong do loi cua Ben B.
+
+DIEU 6. QUYEN VA NGHIA VU CUA BEN B
+6.1. Quyen cua Ben B:
+     a) Su dung mat bang theo dung muc dich da thoa thuan;
+     b) Yeu cau Ben A sua chua hu hong thuoc trach nhiem cua Ben A.
+6.2. Nghia vu cua Ben B:
+     a) Tra tien thue day du, dung han;
+     b) Su dung mat bang dung muc dich, khong tu y cai tao, sua doi ket cau;
+     c) Khong cho thue lai khi chua co su dong y cua Ben A;
+     d) Tra lai mat bang dung tinh trang ban dau khi ket thuc hop dong.
+
+DIEU 7. CHAM DUT HOP DONG
+7.1. Hop dong cham dut khi het thoi han.
+7.2. Cham dut truoc han:
+     a) Hai ben thoa thuan cham dut;
+     b) Ben vi pham phai boi thuong theo quy dinh cua phap luat;
+     c) Ben muon cham dut truoc han phai thong bao truoc it nhat 30 ngay.
+
+DIEU 8. DIEU KHOAN THI HANH
+8.1. Hop dong nay co hieu luc ke tu ngay ky.
+8.2. Hop dong duoc lap thanh 02 ban co gia tri phap ly nhu nhau, moi ben giu 01 ban.
+8.3. Moi tranh chap phat sinh duoc giai quyet bang thuong luong. Truong hop khong giai quyet duoc, dua ra Toa an co tham quyen giai quyet.
+
+BEN A — BEN CHO THUE                           BEN B — BEN THUE
+(Ky, ghi ro ho ten)                            (Ky, ghi ro ho ten)
+
+
+
+{{ lessor_name | default("___") }}                {{ lessee_name | default("___") }}

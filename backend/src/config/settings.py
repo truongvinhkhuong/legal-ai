@@ -51,6 +51,10 @@ class Settings(BaseSettings):
     skip_enrichment: bool = False
     enrichment_concurrency: int = 5
 
+    # --- Query Decomposition ---
+    decomposition_enabled: bool = True
+    decomposition_max_sub_questions: int = 4
+
     # --- Auth ---
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"

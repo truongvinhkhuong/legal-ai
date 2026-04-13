@@ -324,3 +324,119 @@ class IngestResponse(BaseModel):
     articles_found: int = 0
     cross_references_found: int = 0
     warnings: list[str] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Contract models
+# ---------------------------------------------------------------------------
+
+class ContractTemplateKey(str, Enum):
+    hdld_xdth = "hdld_xdth"
+    hdld_kxdth = "hdld_kxdth"
+    hd_thu_viec = "hd_thu_viec"
+    hd_thue_mat_bang = "hd_thue_mat_bang"
+    hd_dich_vu = "hd_dich_vu"
+    qd_cham_dut_hdld = "qd_cham_dut_hdld"
+    bien_ban_vi_pham = "bien_ban_vi_pham"
+
+
+class RegionCode(str, Enum):
+    vung_1 = "vung_1"
+    vung_2 = "vung_2"
+    vung_3 = "vung_3"
+    vung_4 = "vung_4"
+
+
+class ComplianceLevel(str, Enum):
+    error = "error"
+    warning = "warning"
+    info = "info"
+
+
+class ComplianceIssue(BaseModel):
+    rule_id: str
+    level: ComplianceLevel
+    field: str
+    message_vi: str
+    legal_basis: str = ""
+    suggested_value: Optional[str] = None
+
+
+class ComplianceResult(BaseModel):
+    is_compliant: bool
+    issues: list[ComplianceIssue] = Field(default_factory=list)
+    checked_at: str = ""
+
+
+class FormFieldDef(BaseModel):
+    field_key: str
+    label_vi: str
+    field_type: str  # "text", "number", "date", "select", "textarea"
+    required: bool = True
+    placeholder_vi: str = ""
+    options: Optional[list[dict]] = None
+    validation: Optional[dict] = None
+    help_text_vi: str = ""
+
+
+class FormStep(BaseModel):
+    step_number: int
+    title_vi: str
+    fields: list[FormFieldDef] = Field(default_factory=list)
+
+
+class TemplateListItem(BaseModel):
+    template_key: str
+    name_vi: str
+    description_vi: str
+    category: str
+
+
+class TemplateDetail(BaseModel):
+    template_key: str
+    name_vi: str
+    description_vi: str
+    category: str
+    form_steps: list[FormStep] = Field(default_factory=list)
+
+
+class ContractValidateRequest(BaseModel):
+    template_key: ContractTemplateKey
+    input_data: dict
+    region: RegionCode = RegionCode.vung_1
+
+
+class ContractCreateRequest(BaseModel):
+    template_key: ContractTemplateKey
+    title: str = ""
+    input_data: dict
+    region: RegionCode = RegionCode.vung_1
+
+
+class ContractResponse(BaseModel):
+    contract_id: str
+    status: str = "draft"
+    rendered_content: str = ""
+    compliance: ComplianceResult
+    created_at: str = ""
+
+
+class ContractDetail(BaseModel):
+    contract_id: str
+    template_key: str
+    title: str
+    status: str
+    input_data: dict
+    rendered_content: str
+    compliance: Optional[ComplianceResult] = None
+    version: int = 1
+    created_at: str = ""
+    updated_at: str = ""
+
+
+class ContractListItem(BaseModel):
+    contract_id: str
+    template_key: str
+    title: str
+    status: str
+    created_at: str = ""
