@@ -19,10 +19,10 @@ export function ContractPreview({
 }) {
   const statusLabel =
     status === "draft"
-      ? "Ban nhap"
+      ? "Bản nháp"
       : status === "review"
-        ? "Dang duyet"
-        : "Hoan thanh";
+        ? "Đang duyệt"
+        : "Hoàn thành";
 
   const statusColor =
     status === "final"
@@ -54,7 +54,7 @@ export function ContractPreview({
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {compliance.is_compliant ? "Dat" : "Khong dat"}
+                  {compliance.is_compliant ? "Đạt" : "Không đạt"}
                 </span>
               )}
             </div>
@@ -64,13 +64,13 @@ export function ContractPreview({
               href={getExportUrl(contractId, "docx")}
               className="px-3 py-1.5 text-xs rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
             >
-              Tai DOCX
+              Tải DOCX
             </a>
             <a
               href={getExportUrl(contractId, "pdf")}
               className="px-3 py-1.5 text-xs rounded-md bg-brand-500 text-white hover:bg-brand-600"
             >
-              Tai PDF
+              Tải PDF
             </a>
           </div>
         </div>
@@ -78,7 +78,7 @@ export function ContractPreview({
         {compliance && compliance.issues.length > 0 && (
           <details className="mt-3">
             <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
-              Ket qua kiem tra ({compliance.issues.length} van de)
+              Kết quả kiểm tra ({compliance.issues.length} vấn đề)
             </summary>
             <div className="mt-2">
               <ComplianceBadge compliance={compliance} />

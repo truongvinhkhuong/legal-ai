@@ -202,6 +202,7 @@ class ChunkPayload(BaseModel):
     amended_by_chunk: Optional[str] = None
 
     # ACL
+    tenant_id: str = ""
     access_level: str = AccessLevel.public.value
     allowed_departments: list[str] = Field(default_factory=lambda: ["all"])
     scope: list[str] = Field(default_factory=lambda: ["toan_cong_ty"])
@@ -219,6 +220,7 @@ class ChunkPayload(BaseModel):
         chunk: ChunkMetadata,
         enriched_text: str = "",
         segmented_text: str = "",
+        tenant_id: str = "",
     ) -> ChunkPayload:
         """Build payload from chunk metadata + enriched/segmented text."""
         return cls(
@@ -247,6 +249,7 @@ class ChunkPayload(BaseModel):
             cross_references=chunk.cross_references,
             amended_status=chunk.amended_status,
             amended_by_chunk=chunk.amended_by_chunk,
+            tenant_id=tenant_id,
             access_level=chunk.access_level,
             allowed_departments=chunk.allowed_departments,
             scope=chunk.scope,
@@ -259,6 +262,7 @@ class ChunkPayload(BaseModel):
 
 class UserContext(BaseModel):
     user_id: str = "anonymous"
+    tenant_id: str = ""
     departments: list[str] = Field(default_factory=lambda: ["all"])
     access_levels: list[str] = Field(
         default_factory=lambda: [AccessLevel.public.value]
@@ -440,3 +444,116 @@ class ContractListItem(BaseModel):
     title: str
     status: str
     created_at: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Auth models
+# ---------------------------------------------------------------------------
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str = Field(min_length=6)
+    full_name: str
+    company_name: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class InviteRequest(BaseModel):
+    email: str
+    full_name: str
+    role: str = "viewer"
+    departments: list[str] = Field(default_factory=list)
+
+
+class UserProfile(BaseModel):
+    id: str
+    email: str
+    full_name: str
+    role: str
+    tenant_id: str
+    tenant_name: str = ""
+    departments: list[str] = Field(default_factory=list)
+    access_levels: list[str] = Field(default_factory=list)
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    user: UserProfile
+
+
+# ---------------------------------------------------------------------------
+# Calculator models
+# ---------------------------------------------------------------------------
+
+class TaxCalcRequest(BaseModel):
+    doanh_thu_thang: int
+    loai_hinh: str = "dich_vu"
+
+
+class TaxCalcResponse(BaseModel):
+    doanh_thu: int
+    loai_hinh: str
+    vat_rate: float
+    vat_amount: int
+    tncn_rate: float
+    tncn_amount: int
+    total_tax: int
+    effective_rate: float
+
+
+class BHXHCalcRequest(BaseModel):
+    luong_dong_bhxh: int
+    so_nhan_vien: int = 1
+    region: str = "vung_1"
+
+
+class BHXHCalcResponse(BaseModel):
+    luong_dong_bhxh: int
+    luong_dong_bhxh_cap: int
+    so_nhan_vien: int
+    region: str
+    min_wage: int
+    lines: list[dict] = Field(default_factory=list)
+    total_employee: int = 0
+    total_employer: int = 0
+    total_monthly: int = 0
+    total_company_monthly: int = 0
+
+
+class TNCNCalcRequest(BaseModel):
+    thu_nhap: int
+    giam_tru_gia_canh: bool = True
+    so_nguoi_phu_thuoc: int = 0
+
+
+class TNCNCalcResponse(BaseModel):
+    thu_nhap: int
+    giam_tru_ban_than: int
+    giam_tru_phu_thuoc: int
+    so_nguoi_phu_thuoc: int
+    total_giam_tru: int
+    thu_nhap_chiu_thue: int
+    brackets: list[dict] = Field(default_factory=list)
+    total_tax: int
+    effective_rate: float
+
+
+class CalculatorChatRequest(BaseModel):
+    question: str
+
+
+class CalculatorChatResponse(BaseModel):
+    summary: str
+    tax: Optional[TaxCalcResponse] = None
+    bhxh: Optional[BHXHCalcResponse] = None
+    tncn: Optional[TNCNCalcResponse] = None

@@ -12,10 +12,10 @@ function IssueLine({ issue }: { issue: ComplianceIssue }) {
 
   const levelLabel =
     issue.level === "error"
-      ? "Loi"
+      ? "Lỗi"
       : issue.level === "warning"
-        ? "Canh bao"
-        : "Thong tin";
+        ? "Cảnh báo"
+        : "Thông tin";
 
   return (
     <div className={`text-xs p-2 rounded border ${bg}`}>
@@ -28,7 +28,7 @@ function IssueLine({ issue }: { issue: ComplianceIssue }) {
       )}
       {issue.suggested_value && (
         <span className="block mt-0.5 text-[10px] opacity-75">
-          Gia tri de xuat: {issue.suggested_value}
+          Giá trị đề xuất: {issue.suggested_value}
         </span>
       )}
     </div>
@@ -55,16 +55,16 @@ export function ComplianceBadge({
               : "bg-red-100 text-red-800"
           }`}
         >
-          {compliance.is_compliant ? "Dat" : "Khong dat"}
+          {compliance.is_compliant ? "Đạt" : "Không đạt"}
         </span>
         {errors.length > 0 && (
           <span className="text-xs text-red-600">
-            {errors.length} loi
+            {errors.length} lỗi
           </span>
         )}
         {warnings.length > 0 && (
           <span className="text-xs text-yellow-600">
-            {warnings.length} canh bao
+            {warnings.length} cảnh báo
           </span>
         )}
       </div>

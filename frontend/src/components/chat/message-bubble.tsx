@@ -22,7 +22,7 @@ export function MessageBubble({ message, isStreaming }: Props) {
         {/* Action plan indicator */}
         {isActionPlan && !isUser && (
           <div className="mb-2 pb-2 border-b border-gray-100 text-xs font-semibold text-brand-700 uppercase tracking-wide">
-            Ke hoach hanh dong
+            Kế hoạch hành động
           </div>
         )}
 
@@ -43,11 +43,11 @@ export function MessageBubble({ message, isStreaming }: Props) {
         {message.metadata && !isStreaming && (
           <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-3 text-xs text-gray-400">
             <span>
-              Do tin cay: {Math.round(message.metadata.confidence)}%
+              Độ tin cậy: {Math.round(message.metadata.confidence)}%
             </span>
-            <span>{message.metadata.sources_count} nguon</span>
+            <span>{message.metadata.sources_count} nguồn</span>
             {message.metadata.has_expired_sources && (
-              <span className="text-red-500">Co VB het hieu luc</span>
+              <span className="text-red-500">Có VB hết hiệu lực</span>
             )}
           </div>
         )}

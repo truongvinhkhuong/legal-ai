@@ -134,3 +134,152 @@ export interface ContractListItem {
   status: string;
   created_at: string;
 }
+
+/* ----- Auth types ----- */
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  tenant_id: string;
+  tenant_name: string;
+  departments: string[];
+  access_levels: string[];
+}
+
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  user: UserProfile;
+}
+
+/* ----- Calculator types ----- */
+
+export interface TaxCalcResult {
+  doanh_thu: number;
+  loai_hinh: string;
+  vat_rate: number;
+  vat_amount: number;
+  tncn_rate: number;
+  tncn_amount: number;
+  total_tax: number;
+  effective_rate: number;
+}
+
+export interface BHXHLine {
+  label: string;
+  rate_employee: number;
+  rate_employer: number;
+  amount_employee: number;
+  amount_employer: number;
+}
+
+export interface BHXHCalcResult {
+  luong_dong_bhxh: number;
+  luong_dong_bhxh_cap: number;
+  so_nhan_vien: number;
+  region: string;
+  min_wage: number;
+  lines: BHXHLine[];
+  total_employee: number;
+  total_employer: number;
+  total_monthly: number;
+  total_company_monthly: number;
+}
+
+export interface TNCNBracket {
+  from: number;
+  to: number;
+  rate: number;
+  taxable: number;
+  tax: number;
+}
+
+export interface TNCNCalcResult {
+  thu_nhap: number;
+  giam_tru_ban_than: number;
+  giam_tru_phu_thuoc: number;
+  so_nguoi_phu_thuoc: number;
+  total_giam_tru: number;
+  thu_nhap_chiu_thue: number;
+  brackets: TNCNBracket[];
+  total_tax: number;
+  effective_rate: number;
+}
+
+export interface CalculatorChatResult {
+  summary: string;
+  tax: TaxCalcResult | null;
+  bhxh: BHXHCalcResult | null;
+  tncn: TNCNCalcResult | null;
+}
+
+/* ----- Calendar types ----- */
+
+export interface CalendarEvent {
+  date_str: string;
+  title: string;
+  description: string;
+  category: string;
+  is_overdue: boolean;
+}
+
+/* ----- Compliance Check types ----- */
+
+export interface ChecklistInfo {
+  key: string;
+  label: string;
+  items_count: number;
+}
+
+export interface GapItem {
+  checklist_item_id: string;
+  title_vi: string;
+  legal_basis: string;
+  status: "dat" | "khong_dat" | "khong_ro";
+  matched_section: string;
+  suggestion_vi: string;
+}
+
+export interface GapReport {
+  checklist_type: string;
+  total_items: number;
+  dat_count: number;
+  khong_dat_count: number;
+  khong_ro_count: number;
+  coverage_pct: number;
+  items: GapItem[];
+}
+
+/* ----- Risk Review types ----- */
+
+export interface ContractTypeInfo {
+  key: string;
+  label: string;
+  rules_count: number;
+}
+
+export interface RiskIssue {
+  rule_id: string;
+  category: string;
+  severity: string;
+  title_vi: string;
+  description_vi: string;
+  legal_basis: string;
+  matched_clause: string;
+  suggestion_vi: string;
+}
+
+export interface RiskReport {
+  contract_type: string;
+  risk_score: number;
+  total_rules: number;
+  issues_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  summary_vi: string;
+  issues: RiskIssue[];
+}

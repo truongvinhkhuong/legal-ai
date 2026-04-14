@@ -3,9 +3,9 @@
 import type { TemplateListItem } from "@/lib/types";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  lao_dong: "Lao dong",
-  thue: "Thue mat bang",
-  dich_vu: "Dich vu",
+  lao_dong: "Lao động",
+  thue: "Thuê mặt bằng",
+  dich_vu: "Dịch vụ",
 };
 
 export function TemplateCard({

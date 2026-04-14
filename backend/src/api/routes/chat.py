@@ -3,20 +3,34 @@
 from __future__ import annotations
 
 import json
-from typing import AsyncGenerator
+from typing import Annotated, AsyncGenerator
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from sse_starlette.sse import EventSourceResponse
 
 from src.api.dependencies import get_engine
-from src.api.models import ChatRequest
+from src.api.models import ChatRequest, UserContext
+from src.auth.dependencies import get_current_user
+from src.db.models.user import User
 
 router = APIRouter(tags=["chat"])
 
 
 @router.post("/api/chat/stream")
-async def chat_stream(request: ChatRequest):
+async def chat_stream(
+    request: ChatRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
     engine = get_engine()
+
+    # Build user context from authenticated user
+    request.user_context = UserContext(
+        user_id=str(current_user.id),
+        tenant_id=str(current_user.tenant_id),
+        departments=current_user.departments or ["all"],
+        access_levels=current_user.access_levels or ["public"],
+        role=current_user.role,
+    )
 
     async def event_generator() -> AsyncGenerator[dict, None]:
         async for event in engine.query(request):

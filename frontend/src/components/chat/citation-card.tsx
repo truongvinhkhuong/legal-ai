@@ -12,9 +12,9 @@ export function CitationCard({ citation }: Props) {
   };
 
   const statusLabels: Record<string, string> = {
-    hieu_luc: "Con hieu luc",
-    het_hieu_luc: "Het hieu luc",
-    da_sua_doi: "Da sua doi",
+    hieu_luc: "Còn hiệu lực",
+    het_hieu_luc: "Hết hiệu lực",
+    da_sua_doi: "Đã sửa đổi",
   };
 
   const borderStyle = statusStyles[citation.validity_status] || "border-gray-200 bg-gray-50";
@@ -56,7 +56,7 @@ export function CitationCard({ citation }: Props) {
 
         <div className="mt-1 text-gray-400">
           {citation.hierarchy_path}
-          {citation.is_cross_reference && " (tham chieu cheo)"}
+          {citation.is_cross_reference && " (tham chiếu chéo)"}
         </div>
       </div>
     </details>

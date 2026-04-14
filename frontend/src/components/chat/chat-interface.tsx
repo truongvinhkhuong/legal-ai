@@ -28,13 +28,13 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-gray-400 mt-12 md:mt-20 px-4">
-            <p className="text-lg font-medium text-gray-600">Xin chao! Toi co the giup gi cho ban?</p>
-            <p className="text-sm mt-3 text-gray-400">Thu hoi mot trong nhung cau sau:</p>
+            <p className="text-lg font-medium text-gray-600">Xin chào! Tôi có thể giúp gì cho bạn?</p>
+            <p className="text-sm mt-3 text-gray-400">Thử hỏi một trong những câu sau:</p>
             <div className="mt-4 space-y-2 max-w-md mx-auto">
               {[
-                "Nhan vien nghi viec khong bao truoc, xu ly the nao?",
-                "Quy dinh ve thoi gian thu viec theo luat moi nhat?",
-                "Hop dong thue mat bang can nhung dieu khoan gi?",
+                "Nhân viên nghỉ việc không báo trước, xử lý thế nào?",
+                "Quy định về thời gian thử việc theo luật mới nhất?",
+                "Hợp đồng thuê mặt bằng cần những điều khoản gì?",
               ].map((q) => (
                 <button
                   key={q}
@@ -71,7 +71,7 @@ export function ChatInterface() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Nhap cau hoi phap ly..."
+            placeholder="Nhập câu hỏi pháp lý..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             disabled={isStreaming}
           />
@@ -80,7 +80,7 @@ export function ChatInterface() {
             disabled={isStreaming || !input.trim()}
             className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isStreaming ? "Dang tra loi..." : "Gui"}
+            {isStreaming ? "Đang trả lời..." : "Gửi"}
           </button>
           {messages.length > 0 && (
             <button
@@ -88,7 +88,7 @@ export function ChatInterface() {
               onClick={clearMessages}
               className="px-3 py-2 text-gray-500 hover:text-gray-700 text-sm"
             >
-              Xoa
+              Xóa
             </button>
           )}
         </form>

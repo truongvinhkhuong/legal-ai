@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
-from typing import Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
@@ -18,16 +17,17 @@ from src.api.models import (
     ContractListItem,
     ContractResponse,
     ContractValidateRequest,
-    FormStep,
     TemplateDetail,
     TemplateListItem,
 )
+from src.auth.dependencies import get_current_user
 from src.config.database import get_db
 from src.contracts.compliance_rules import ComplianceEngine
 from src.contracts.export_engine import to_docx, to_pdf
 from src.contracts.form_schemas import TEMPLATE_FORM_SCHEMAS, TEMPLATE_METADATA
 from src.contracts.template_engine import TemplateEngine
 from src.db.models.contract import Contract, ContractTemplate
+from src.db.models.user import User
 
 router = APIRouter(prefix="/api/contracts", tags=["contracts"])
 
@@ -37,7 +37,7 @@ _compliance_engine = ComplianceEngine()
 
 
 # ---------------------------------------------------------------------------
-# Template endpoints
+# Template endpoints (public — no auth needed for browsing)
 # ---------------------------------------------------------------------------
 
 @router.get("/templates")
@@ -78,10 +78,7 @@ async def get_template_detail(template_key: str) -> TemplateDetail:
 
 @router.post("/validate")
 async def validate_contract(req: ContractValidateRequest) -> ComplianceResult:
-    """Validate contract input data against compliance rules.
-
-    Called per wizard step for real-time feedback.
-    """
+    """Validate contract input data against compliance rules."""
     return _compliance_engine.check_contract(
         template_key=req.template_key.value,
         input_data=req.input_data,
@@ -90,12 +87,13 @@ async def validate_contract(req: ContractValidateRequest) -> ComplianceResult:
 
 
 # ---------------------------------------------------------------------------
-# Contract CRUD
+# Contract CRUD (authenticated)
 # ---------------------------------------------------------------------------
 
 @router.post("/", response_model=ContractResponse)
 async def create_contract(
     req: ContractCreateRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
 ) -> ContractResponse:
     """Create a new contract: render template + compliance check + save."""
@@ -141,13 +139,14 @@ async def create_contract(
 
     # Create contract record
     contract = Contract(
-        tenant_id=tpl.id,  # Simplified: use template id as tenant for now
+        tenant_id=current_user.tenant_id,
         template_id=tpl.id,
         title=title,
         status="draft",
         input_data=req.input_data,
         rendered_content=rendered,
         compliance_result=compliance.model_dump(),
+        created_by=current_user.id,
     )
     db.add(contract)
     await db.flush()
@@ -163,16 +162,18 @@ async def create_contract(
 
 @router.get("/", response_model=list[ContractListItem])
 async def list_contracts(
+    current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
     status: str | None = None,
     template_key: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> list[ContractListItem]:
-    """List user's contracts."""
+    """List contracts belonging to the current user's tenant."""
     query = (
         select(Contract)
         .join(ContractTemplate)
+        .where(Contract.tenant_id == current_user.tenant_id)
         .order_by(Contract.created_at.desc())
     )
 
@@ -200,11 +201,12 @@ async def list_contracts(
 @router.get("/{contract_id}", response_model=ContractDetail)
 async def get_contract(
     contract_id: str,
+    current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
 ) -> ContractDetail:
     """Get contract detail by ID."""
     contract = await db.get(Contract, uuid.UUID(contract_id))
-    if not contract:
+    if not contract or contract.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Contract not found")
 
     # Load template relationship
@@ -232,11 +234,12 @@ async def get_contract(
 async def update_contract(
     contract_id: str,
     req: ContractCreateRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
 ) -> ContractResponse:
     """Update a contract: re-render + re-check compliance."""
     contract = await db.get(Contract, uuid.UUID(contract_id))
-    if not contract:
+    if not contract or contract.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Contract not found")
 
     template_key = req.template_key.value
@@ -275,12 +278,13 @@ async def update_contract(
 @router.get("/{contract_id}/export")
 async def export_contract(
     contract_id: str,
+    current_user: Annotated[User, Depends(get_current_user)],
     format: str = "pdf",
     db: AsyncSession = Depends(get_db),
 ) -> Response:
     """Export contract as PDF or DOCX."""
     contract = await db.get(Contract, uuid.UUID(contract_id))
-    if not contract:
+    if not contract or contract.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Contract not found")
 
     if format == "docx":

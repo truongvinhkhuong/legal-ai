@@ -58,6 +58,7 @@ async def ensure_collection() -> None:
 
         # Keyword indexes
         for field in [
+            "tenant_id",
             "doc_number", "doc_type", "article_number", "status",
             "access_level", "allowed_departments", "effective_date",
             "amended_status", "scope",
@@ -135,6 +136,7 @@ async def index_chunks(
     chunks: list[ChunkMetadata],
     enriched_texts: list[str],
     segmented_texts: list[str],
+    tenant_id: str = "",
 ) -> None:
     """Embed chunks and upsert into Qdrant."""
     if not chunks:
@@ -152,6 +154,7 @@ async def index_chunks(
             chunk,
             enriched_text=enriched,
             segmented_text=segmented,
+            tenant_id=tenant_id,
         )
         point = models.PointStruct(
             id=chunk.chunk_id,

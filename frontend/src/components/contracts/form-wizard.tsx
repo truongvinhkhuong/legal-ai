@@ -73,7 +73,7 @@ function FieldInput({
         value={strVal}
         onChange={(e) => onChange(e.target.value)}
       >
-        <option value="">-- Chon --</option>
+        <option value="">-- Chọn --</option>
         {field.options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -113,7 +113,7 @@ function SummaryStep({
   return (
     <div className="space-y-3">
       <h3 className="font-semibold text-sm text-gray-900">
-        Xac nhan thong tin
+        Xác nhận thông tin
       </h3>
       {steps
         .filter((s) => s.fields.length > 0)
@@ -130,7 +130,7 @@ function SummaryStep({
                 onClick={() => onGoTo(i)}
                 className="text-xs text-brand-600 hover:underline"
               >
-                Sua
+                Sửa
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
@@ -244,7 +244,7 @@ export function FormWizard({
           disabled={isFirstStep}
           className="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Quay lai
+          Quay lại
         </button>
 
         {isLastStep ? (
@@ -253,14 +253,14 @@ export function FormWizard({
             disabled={isSubmitting}
             className="px-5 py-2 text-sm rounded-md bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60"
           >
-            {isSubmitting ? "Dang tao..." : "Tao hop dong"}
+            {isSubmitting ? "Đang tạo..." : "Tạo hợp đồng"}
           </button>
         ) : (
           <button
             onClick={nextStep}
             className="px-4 py-2 text-sm rounded-md bg-brand-500 text-white hover:bg-brand-600"
           >
-            Tiep theo
+            Tiếp theo
           </button>
         )}
       </div>

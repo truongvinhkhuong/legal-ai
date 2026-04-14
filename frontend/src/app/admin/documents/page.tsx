@@ -22,18 +22,18 @@ export default function DocumentsPage() {
     <div className="h-full flex flex-col">
       <header className="px-3 md:px-6 py-3 border-b border-gray-200 bg-white flex justify-between items-center sticky top-0 z-10">
         <div>
-          <h2 className="text-base md:text-lg font-semibold">Quan ly Van ban</h2>
-          <p className="text-xs text-gray-500">{documents.length} van ban</p>
+          <h2 className="text-base md:text-lg font-semibold">Quản lý Văn bản</h2>
+          <p className="text-xs text-gray-500">{documents.length} văn bản</p>
         </div>
         <DocumentUpload onSuccess={() => window.location.reload()} />
       </header>
 
       <div className="flex-1 overflow-auto p-3 md:p-6">
         {loading ? (
-          <p className="text-gray-500 text-sm">Dang tai...</p>
+          <p className="text-gray-500 text-sm">Đang tải...</p>
         ) : documents.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
-            <p className="text-sm">Chua co van ban nao. Upload van ban dau tien.</p>
+            <p className="text-sm">Chưa có văn bản nào. Upload văn bản đầu tiên.</p>
           </div>
         ) : (
           <>
@@ -69,10 +69,10 @@ export default function DocumentsPage() {
             <table className="hidden md:table w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 border-b">
-                  <th className="pb-2 font-medium">So hieu</th>
-                  <th className="pb-2 font-medium">Tieu de</th>
-                  <th className="pb-2 font-medium">Loai</th>
-                  <th className="pb-2 font-medium">Trang thai</th>
+                  <th className="pb-2 font-medium">Số hiệu</th>
+                  <th className="pb-2 font-medium">Tiêu đề</th>
+                  <th className="pb-2 font-medium">Loại</th>
+                  <th className="pb-2 font-medium">Trạng thái</th>
                   <th className="pb-2 font-medium">Chunks</th>
                 </tr>
               </thead>
@@ -108,9 +108,9 @@ function StatusBadge({ status }: { status: string }) {
     da_sua_doi: "bg-yellow-50 text-yellow-700",
   };
   const labels: Record<string, string> = {
-    hieu_luc: "Con hieu luc",
-    het_hieu_luc: "Het hieu luc",
-    da_sua_doi: "Da sua doi",
+    hieu_luc: "Còn hiệu lực",
+    het_hieu_luc: "Hết hiệu lực",
+    da_sua_doi: "Đã sửa đổi",
   };
   return (
     <span className={`px-2 py-0.5 rounded text-xs ${styles[status] || "bg-gray-100"}`}>

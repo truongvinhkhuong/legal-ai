@@ -1,19 +1,26 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import type { UserProfile } from "@/lib/types";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  user: UserProfile | null;
+  onLogout: () => void;
 }
 
 const NAV_ITEMS = [
   { href: "/chat", label: "Chat" },
-  { href: "/contracts", label: "Hop dong" },
-  { href: "/admin/documents", label: "Van ban" },
+  { href: "/contracts", label: "Hợp đồng" },
+  { href: "/calculator", label: "Tính thuế & BHXH" },
+  { href: "/calendar", label: "Lịch tuân thủ" },
+  { href: "/compliance-check", label: "Kiểm tra tuân thủ" },
+  { href: "/contract-review", label: "Kiểm tra hợp đồng" },
+  { href: "/admin/documents", label: "Văn bản" },
 ];
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -60,6 +67,31 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             );
           })}
         </nav>
+
+        {/* User info + logout */}
+        {user && (
+          <div className="p-3 border-t border-gray-200">
+            <div className="flex items-center gap-3 px-2 mb-2">
+              <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-medium flex-shrink-0">
+                {user.full_name.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-800 truncate">
+                  {user.full_name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user.tenant_name}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onLogout}
+              className="w-full px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors text-left"
+            >
+              Đăng xuất
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );

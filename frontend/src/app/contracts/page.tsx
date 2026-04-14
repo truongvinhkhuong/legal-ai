@@ -26,18 +26,18 @@ export default function ContractsPage() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-4 md:p-6 max-w-4xl mx-auto">
-        <h1 className="text-lg font-bold text-gray-900">Soan thao hop dong</h1>
+        <h1 className="text-lg font-bold text-gray-900">Soạn thảo hợp đồng</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Chon mau hop dong de bat dau soan thao
+          Chọn mẫu hợp đồng để bắt đầu soạn thảo
         </p>
 
         {/* Template grid */}
         <section className="mt-6">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">
-            Mau hop dong
+            Mẫu hợp đồng
           </h2>
           {loading ? (
-            <p className="text-sm text-gray-400">Dang tai...</p>
+            <p className="text-sm text-gray-400">Đang tải...</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {templates.map((t) => (
@@ -57,16 +57,16 @@ export default function ContractsPage() {
         {contracts.length > 0 && (
           <section className="mt-8">
             <h2 className="text-sm font-semibold text-gray-700 mb-3">
-              Hop dong da tao
+              Hợp đồng đã tạo
             </h2>
             <div className="space-y-2">
               {contracts.map((c) => {
                 const statusLabel =
                   c.status === "draft"
-                    ? "Ban nhap"
+                    ? "Bản nháp"
                     : c.status === "review"
-                      ? "Dang duyet"
-                      : "Hoan thanh";
+                      ? "Đang duyệt"
+                      : "Hoàn thành";
                 const statusColor =
                   c.status === "final"
                     ? "bg-green-100 text-green-800"

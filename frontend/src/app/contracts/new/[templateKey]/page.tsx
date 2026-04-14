@@ -15,7 +15,7 @@ export default function NewContractPage() {
   useEffect(() => {
     fetchTemplateDetail(templateKey)
       .then(setTemplate)
-      .catch(() => setError("Khong tim thay mau hop dong"));
+      .catch(() => setError("Không tìm thấy mẫu hợp đồng"));
   }, [templateKey]);
 
   if (error) {
@@ -29,7 +29,7 @@ export default function NewContractPage() {
   if (!template) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-sm text-gray-400">Dang tai...</p>
+        <p className="text-sm text-gray-400">Đang tải...</p>
       </div>
     );
   }

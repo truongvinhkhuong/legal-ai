@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Legal Intelligence Platform",
-  description: "Chatbot phap luat & AI soan thao hop dong",
+  description: "Chatbot pháp luật & AI soạn thảo hợp đồng",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

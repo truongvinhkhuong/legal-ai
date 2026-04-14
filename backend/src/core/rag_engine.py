@@ -131,6 +131,15 @@ def _build_acl_filter(user_context: UserContext | None) -> models.Filter | None:
 
     conditions: list[models.Condition] = []
 
+    # Mandatory tenant isolation — always filter by tenant_id
+    if user_context.tenant_id:
+        conditions.append(
+            models.FieldCondition(
+                key="tenant_id",
+                match=models.MatchValue(value=user_context.tenant_id),
+            )
+        )
+
     if user_context.access_levels:
         conditions.append(
             models.FieldCondition(
@@ -267,7 +276,8 @@ class RAGEngine:
         segmented_texts = [self.nlp.segment_words(c.original_text) for c in chunks]
 
         # 10. Index into Qdrant
-        await index_chunks(chunks, enriched_texts, segmented_texts)
+        tenant_id = override_metadata.get("tenant_id", "")
+        await index_chunks(chunks, enriched_texts, segmented_texts, tenant_id=tenant_id)
 
         return IngestResponse(
             success=True,

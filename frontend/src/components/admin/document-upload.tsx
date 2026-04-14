@@ -23,14 +23,14 @@ export function DocumentUpload({ onSuccess }: Props) {
       const response = await ingestDocument(file, {});
       if (response.success) {
         setResult(
-          `Thanh cong: ${response.chunks_created} chunks, ${response.articles_found} dieu`
+          `Thành công: ${response.chunks_created} chunks, ${response.articles_found} điều`
         );
         onSuccess?.();
       } else {
-        setResult(`That bai: ${response.warnings.join(", ")}`);
+        setResult(`Thất bại: ${response.warnings.join(", ")}`);
       }
     } catch (err) {
-      setResult("Loi upload. Kiem tra server.");
+      setResult("Lỗi upload. Kiểm tra server.");
     } finally {
       setUploading(false);
     }
@@ -49,7 +49,7 @@ export function DocumentUpload({ onSuccess }: Props) {
         disabled={uploading}
         className="px-3 py-1.5 bg-brand-600 text-white text-sm rounded hover:bg-brand-700 disabled:opacity-50"
       >
-        {uploading ? "Dang xu ly..." : "Upload"}
+        {uploading ? "Đang xử lý..." : "Upload"}
       </button>
       {result && (
         <span className="text-xs text-gray-500">{result}</span>

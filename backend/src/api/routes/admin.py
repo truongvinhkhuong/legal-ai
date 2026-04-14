@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.auth.dependencies import get_current_user, require_role
 from src.config.database import get_db
 from src.db.models.document import Document, DocumentRelationship
+from src.db.models.user import User
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -53,13 +55,18 @@ class RelationshipCreate(BaseModel):
 
 @router.get("/documents")
 async def list_documents(
+    current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
     doc_type: str | None = None,
     status: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
-    query = select(Document).order_by(Document.created_at.desc())
+    query = (
+        select(Document)
+        .where(Document.tenant_id == current_user.tenant_id)
+        .order_by(Document.created_at.desc())
+    )
 
     if doc_type:
         query = query.where(Document.doc_type == doc_type)
@@ -92,10 +99,11 @@ async def list_documents(
 @router.get("/documents/{doc_id}")
 async def get_document(
     doc_id: str,
+    current_user: Annotated[User, Depends(get_current_user)],
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     doc = await db.get(Document, uuid.UUID(doc_id))
-    if not doc:
+    if not doc or doc.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Document not found")
 
     return {
@@ -122,10 +130,11 @@ async def get_document(
 async def update_document(
     doc_id: str,
     update: DocumentUpdate,
+    current_user: Annotated[User, Depends(require_role(["admin", "editor"]))],
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     doc = await db.get(Document, uuid.UUID(doc_id))
-    if not doc:
+    if not doc or doc.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Document not found")
 
     update_data = update.model_dump(exclude_none=True)
@@ -138,10 +147,11 @@ async def update_document(
 @router.delete("/documents/{doc_id}")
 async def delete_document(
     doc_id: str,
+    current_user: Annotated[User, Depends(require_role(["admin"]))],
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     doc = await db.get(Document, uuid.UUID(doc_id))
-    if not doc:
+    if not doc or doc.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Document not found")
 
     await db.delete(doc)
@@ -158,6 +168,7 @@ async def delete_document(
 async def create_relationship(
     doc_id: str,
     body: RelationshipCreate,
+    current_user: Annotated[User, Depends(require_role(["admin", "editor"]))],
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     rel = DocumentRelationship(
