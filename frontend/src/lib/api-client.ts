@@ -358,3 +358,45 @@ export async function analyzeRisk(file: File, contractType: string) {
   if (!response.ok) throw new Error(`Risk analyze failed: ${response.status}`);
   return response.json();
 }
+
+/* ----- User Management API ----- */
+
+export async function fetchUsers() {
+  const response = await authFetch(`${API_BASE}/api/admin/users`);
+  if (!response.ok) throw new Error(`Fetch users failed: ${response.status}`);
+  return response.json();
+}
+
+export async function updateUser(userId: string, data: Record<string, unknown>) {
+  const response = await authFetch(`${API_BASE}/api/admin/users/${userId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error(`Update user failed: ${response.status}`);
+  return response.json();
+}
+
+export async function deactivateUser(userId: string) {
+  const response = await authFetch(`${API_BASE}/api/admin/users/${userId}/deactivate`, {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error(`Deactivate failed: ${response.status}`);
+  return response.json();
+}
+
+export async function reactivateUser(userId: string) {
+  const response = await authFetch(`${API_BASE}/api/admin/users/${userId}/reactivate`, {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error(`Reactivate failed: ${response.status}`);
+  return response.json();
+}
+
+/* ----- Admin Stats API ----- */
+
+export async function fetchAdminStats() {
+  const response = await authFetch(`${API_BASE}/api/admin/stats`);
+  if (!response.ok) throw new Error(`Fetch stats failed: ${response.status}`);
+  return response.json();
+}

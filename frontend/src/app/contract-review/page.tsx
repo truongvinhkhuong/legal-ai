@@ -99,11 +99,11 @@ export default function ContractReviewPage() {
 
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
-              Upload hợp đồng (.txt, .html)
+              Upload hợp đồng (.txt, .html, .pdf, .docx)
             </label>
             <input
               type="file"
-              accept=".txt,.html,.htm"
+              accept=".txt,.html,.htm,.pdf,.docx"
               onChange={(e) => review.setFile(e.target.files?.[0] || null)}
               className="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
             />

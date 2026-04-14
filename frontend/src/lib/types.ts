@@ -146,6 +146,7 @@ export interface UserProfile {
   tenant_name: string;
   departments: string[];
   access_levels: string[];
+  plan: string;
 }
 
 export interface LoginResponse {
@@ -282,4 +283,22 @@ export interface RiskReport {
   low_count: number;
   summary_vi: string;
   issues: RiskIssue[];
+}
+
+/* ----- User Management types ----- */
+
+export interface UserListItem {
+  id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  departments: string[];
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UserUpdate {
+  full_name?: string;
+  role?: string;
+  departments?: string[];
 }

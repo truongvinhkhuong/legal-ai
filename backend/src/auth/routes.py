@@ -22,6 +22,7 @@ from src.auth.dependencies import get_current_user, require_role
 from src.auth.jwt import create_access_token, create_refresh_token, decode_token
 from src.auth.password import hash_password, verify_password
 from src.config.database import get_db
+from src.core.audit import log_action
 from src.db.models.tenant import Tenant
 from src.db.models.user import User
 
@@ -36,7 +37,7 @@ def _slugify(name: str) -> str:
     return slug[:100] or "tenant"
 
 
-def _build_profile(user: User, tenant_name: str = "") -> UserProfile:
+def _build_profile(user: User, tenant_name: str = "", plan: str = "free") -> UserProfile:
     return UserProfile(
         id=str(user.id),
         email=user.email,
@@ -46,6 +47,7 @@ def _build_profile(user: User, tenant_name: str = "") -> UserProfile:
         tenant_name=tenant_name,
         departments=user.departments or [],
         access_levels=user.access_levels or [],
+        plan=plan,
     )
 
 
@@ -99,13 +101,18 @@ async def register(
     db.add(user)
     await db.flush()
 
+    await log_action(
+        db, tenant_id=tenant.id, user_id=user.id,
+        action="create", resource_type="user", resource_id=user.id,
+    )
+
     access_token = create_access_token(_build_token_data(user))
     refresh_token = create_refresh_token(str(user.id))
 
     return LoginResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        user=_build_profile(user, tenant.name),
+        user=_build_profile(user, tenant.name, tenant.plan),
     )
 
 
@@ -138,13 +145,18 @@ async def login(
     tenant_result = await db.execute(select(Tenant).where(Tenant.id == user.tenant_id))
     tenant = tenant_result.scalar_one_or_none()
 
+    await log_action(
+        db, tenant_id=user.tenant_id, user_id=user.id,
+        action="login", resource_type="user", resource_id=user.id,
+    )
+
     access_token = create_access_token(_build_token_data(user))
     refresh_token = create_refresh_token(str(user.id))
 
     return LoginResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        user=_build_profile(user, tenant.name if tenant else ""),
+        user=_build_profile(user, tenant.name if tenant else "", tenant.plan if tenant else "free"),
     )
 
 
@@ -187,7 +199,7 @@ async def get_me(
     """Return the current user's profile."""
     tenant_result = await db.execute(select(Tenant).where(Tenant.id == current_user.tenant_id))
     tenant = tenant_result.scalar_one_or_none()
-    return _build_profile(current_user, tenant.name if tenant else "")
+    return _build_profile(current_user, tenant.name if tenant else "", tenant.plan if tenant else "free")
 
 
 # --------------------------------------------------------------------------
@@ -222,8 +234,14 @@ async def invite_user(
     db.add(user)
     await db.flush()
 
+    await log_action(
+        db, tenant_id=admin.tenant_id, user_id=admin.id,
+        action="create", resource_type="user", resource_id=user.id,
+        details={"invited_email": req.email, "role": req.role},
+    )
+
     # Get tenant name for profile
     tenant_result = await db.execute(select(Tenant).where(Tenant.id == admin.tenant_id))
     tenant = tenant_result.scalar_one_or_none()
 
-    return _build_profile(user, tenant.name if tenant else "")
+    return _build_profile(user, tenant.name if tenant else "", tenant.plan if tenant else "free")

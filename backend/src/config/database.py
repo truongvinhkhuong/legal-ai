@@ -35,6 +35,9 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db() -> None:
     """Create tables on startup (dev only — use Alembic in production)."""
+    if settings.app_env != "development":
+        return
+
     from src.db.models import Base
 
     async with engine.begin() as conn:

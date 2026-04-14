@@ -58,7 +58,7 @@ async def ensure_collection() -> None:
 
         # Keyword indexes
         for field in [
-            "tenant_id",
+            "tenant_id", "doc_id",
             "doc_number", "doc_type", "article_number", "status",
             "access_level", "allowed_departments", "effective_date",
             "amended_status", "scope",
@@ -173,6 +173,52 @@ async def index_chunks(
             points=batch,
         )
     logger.info("Indexed %d chunks into Qdrant", len(points))
+
+
+# ---------------------------------------------------------------------------
+# Chunk deletion
+# ---------------------------------------------------------------------------
+
+
+async def delete_chunks_by_doc_id(doc_id: str) -> int:
+    """Delete all Qdrant points whose payload.doc_id matches the given doc_id.
+
+    Returns the number of deleted points (approximate).
+    """
+    client = await get_qdrant_client()
+    collection = settings.qdrant_collection
+
+    # Count before delete (for logging)
+    count_result = await client.count(
+        collection_name=collection,
+        count_filter=models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="doc_id",
+                    match=models.MatchValue(value=doc_id),
+                ),
+            ],
+        ),
+    )
+    count = count_result.count
+
+    if count > 0:
+        await client.delete(
+            collection_name=collection,
+            points_selector=models.FilterSelector(
+                filter=models.Filter(
+                    must=[
+                        models.FieldCondition(
+                            key="doc_id",
+                            match=models.MatchValue(value=doc_id),
+                        ),
+                    ],
+                ),
+            ),
+        )
+        logger.info("Deleted %d Qdrant chunks for doc_id=%s", count, doc_id)
+
+    return count
 
 
 # ---------------------------------------------------------------------------

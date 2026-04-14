@@ -23,6 +23,8 @@ from src.api.models import (
 from src.auth.dependencies import get_current_user
 from src.config.database import get_db
 from src.contracts.compliance_rules import ComplianceEngine
+from src.core.audit import log_action
+from src.core.gate import require_feature
 from src.contracts.export_engine import to_docx, to_pdf
 from src.contracts.form_schemas import TEMPLATE_FORM_SCHEMAS, TEMPLATE_METADATA
 from src.contracts.template_engine import TemplateEngine
@@ -93,7 +95,7 @@ async def validate_contract(req: ContractValidateRequest) -> ComplianceResult:
 @router.post("/", response_model=ContractResponse)
 async def create_contract(
     req: ContractCreateRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_feature("contract"))],
     db: AsyncSession = Depends(get_db),
 ) -> ContractResponse:
     """Create a new contract: render template + compliance check + save."""
@@ -150,6 +152,12 @@ async def create_contract(
     )
     db.add(contract)
     await db.flush()
+
+    await log_action(
+        db, tenant_id=current_user.tenant_id, user_id=current_user.id,
+        action="create", resource_type="contract", resource_id=contract.id,
+        details={"template_key": template_key, "title": title},
+    )
 
     return ContractResponse(
         contract_id=str(contract.id),
@@ -286,6 +294,12 @@ async def export_contract(
     contract = await db.get(Contract, uuid.UUID(contract_id))
     if not contract or contract.tenant_id != current_user.tenant_id:
         raise HTTPException(status_code=404, detail="Contract not found")
+
+    await log_action(
+        db, tenant_id=current_user.tenant_id, user_id=current_user.id,
+        action="export", resource_type="contract", resource_id=contract.id,
+        details={"format": format},
+    )
 
     if format == "docx":
         content = to_docx(contract.rendered_content, title=contract.title)

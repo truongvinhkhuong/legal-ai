@@ -11,6 +11,7 @@ from sse_starlette.sse import EventSourceResponse
 from src.api.dependencies import get_engine
 from src.api.models import ChatRequest, UserContext
 from src.auth.dependencies import get_current_user
+from src.core.gate import require_feature
 from src.db.models.user import User
 
 router = APIRouter(tags=["chat"])
@@ -19,7 +20,7 @@ router = APIRouter(tags=["chat"])
 @router.post("/api/chat/stream")
 async def chat_stream(
     request: ChatRequest,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_feature("chat"))],
 ):
     engine = get_engine()
 

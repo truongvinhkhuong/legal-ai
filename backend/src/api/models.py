@@ -482,6 +482,7 @@ class UserProfile(BaseModel):
     tenant_name: str = ""
     departments: list[str] = Field(default_factory=list)
     access_levels: list[str] = Field(default_factory=list)
+    plan: str = "free"
 
 
 class LoginResponse(BaseModel):

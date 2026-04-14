@@ -98,7 +98,7 @@ class LegalMetadataExtractor:
         issue_date = self._parse_date(override.get("issue_date")) or auto_issue_date
 
         return DocumentMetadata(
-            doc_id=str(uuid.uuid4()),
+            doc_id=override.get("doc_id", str(uuid.uuid4())),
             doc_number=override.get("doc_number", header.get("doc_number", "")),
             doc_title=override.get("doc_title", header.get("title", "")),
             doc_type=doc_type,

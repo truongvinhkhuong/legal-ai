@@ -22,6 +22,7 @@ from src.api.models import (
     TNCNCalcResponse,
 )
 from src.auth.dependencies import get_current_user
+from src.core.gate import require_feature
 from src.calculator.extractor import extract_business_params
 from src.calculator.tax_rules import (
     calculate_bhxh,
@@ -40,7 +41,7 @@ def _fmt_vnd(amount: int) -> str:
 @router.post("/tax", response_model=TaxCalcResponse)
 async def calc_tax(
     req: TaxCalcRequest,
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User, Depends(require_feature("calculator"))],
 ) -> TaxCalcResponse:
     result = calculate_ho_kinh_doanh(req.doanh_thu_thang, req.loai_hinh)
     return TaxCalcResponse(**asdict(result))
@@ -49,7 +50,7 @@ async def calc_tax(
 @router.post("/bhxh", response_model=BHXHCalcResponse)
 async def calc_bhxh(
     req: BHXHCalcRequest,
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User, Depends(require_feature("calculator"))],
 ) -> BHXHCalcResponse:
     result = calculate_bhxh(req.luong_dong_bhxh, req.so_nhan_vien, req.region)
     return BHXHCalcResponse(
@@ -69,7 +70,7 @@ async def calc_bhxh(
 @router.post("/tncn", response_model=TNCNCalcResponse)
 async def calc_tncn(
     req: TNCNCalcRequest,
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User, Depends(require_feature("calculator"))],
 ) -> TNCNCalcResponse:
     result = calculate_tncn(req.thu_nhap, req.giam_tru_gia_canh, req.so_nguoi_phu_thuoc)
     return TNCNCalcResponse(**asdict(result))
@@ -78,7 +79,7 @@ async def calc_tncn(
 @router.post("/chat", response_model=CalculatorChatResponse)
 async def calc_chat(
     req: CalculatorChatRequest,
-    _current_user: Annotated[User, Depends(get_current_user)],
+    _current_user: Annotated[User, Depends(require_feature("calculator"))],
 ) -> CalculatorChatResponse:
     """Neuro-symbolic: LLM extracts params → Python calculates → format response."""
     params = await extract_business_params(req.question)

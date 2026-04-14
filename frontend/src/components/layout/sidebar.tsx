@@ -10,14 +10,25 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
+// feature key -> which plans include it
+const FEATURE_PLANS: Record<string, string[]> = {
+  chat: ["free", "basic", "professional", "enterprise"],
+  contract: ["free", "basic", "professional", "enterprise"],
+  calculator: ["basic", "professional", "enterprise"],
+  calendar: ["professional", "enterprise"],
+  compliance_check: ["professional", "enterprise"],
+  risk_review: ["professional", "enterprise"],
+};
+
 const NAV_ITEMS = [
-  { href: "/chat", label: "Chat" },
-  { href: "/contracts", label: "Hợp đồng" },
-  { href: "/calculator", label: "Tính thuế & BHXH" },
-  { href: "/calendar", label: "Lịch tuân thủ" },
-  { href: "/compliance-check", label: "Kiểm tra tuân thủ" },
-  { href: "/contract-review", label: "Kiểm tra hợp đồng" },
-  { href: "/admin/documents", label: "Văn bản" },
+  { href: "/chat", label: "Chat", feature: "chat" },
+  { href: "/contracts", label: "Hợp đồng", feature: "contract" },
+  { href: "/calculator", label: "Tính thuế & BHXH", feature: "calculator" },
+  { href: "/calendar", label: "Lịch tuân thủ", feature: "calendar" },
+  { href: "/compliance-check", label: "Kiểm tra tuân thủ", feature: "compliance_check" },
+  { href: "/contract-review", label: "Kiểm tra hợp đồng", feature: "risk_review" },
+  { href: "/admin/documents", label: "Văn bản", feature: "chat" },
+  { href: "/admin/users", label: "Người dùng", feature: "chat", adminOnly: true as const },
 ];
 
 export function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProps) {
@@ -48,7 +59,12 @@ export function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProps) {
           <p className="text-xs text-gray-500">Intelligence Platform</p>
         </div>
         <nav className="flex-1 p-3 space-y-1">
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter((item) => {
+            const plan = user?.plan || "free";
+            const allowed = FEATURE_PLANS[item.feature]?.includes(plan) ?? true;
+            const adminOk = !("adminOnly" in item && item.adminOnly) || user?.role === "admin";
+            return allowed && adminOk;
+          }).map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
             return (
